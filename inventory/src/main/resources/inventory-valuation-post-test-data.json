@@ -1,0 +1,67 @@
+[
+    {
+    "product": {
+      "productId": "product 1",
+      "valuationType": "MovingAverage"
+    },
+    "id": "9922f657-0fc5-4ea1-8369-4396037508f1",
+    "movementType": "VendorReceipt",
+    "movementQuantity": 60,
+    "acquisitionCost": 600,
+    "movementDate": "2022-01-05T00:00"
+  },
+  {
+    "product": {
+      "productId": "product 1",
+      "valuationType": "MovingAverage"
+    },
+    "id": "9922f657-0fc5-4ea1-8369-4396037508f2",
+    "movementType": "VendorReceipt",
+    "movementQuantity": 50,
+    "acquisitionCost": 1000,
+    "movementDate": "2022-01-07T00:00"
+  },
+  {
+    "product": {
+      "productId": "product 1",
+      "valuationType": "MovingAverage"
+    },
+    "id": "9922f657-0fc5-4ea1-8369-4396037508f3",
+    "movementType": "VendorReceipt",
+    "movementQuantity": 60,
+    "acquisitionCost": 600,
+    "movementDate": "2022-01-10T00:00"
+  },
+  {
+    "product": {
+      "productId": "product 1",
+      "valuationType": "MovingAverage"
+    },
+    "id": "9922f657-0fc5-4ea1-8369-4396037508f4",
+    "movementType": "VendorReceipt",
+    "movementQuantity": 50,
+    "acquisitionCost": 1000,
+    "movementDate": "2022-01-12T00:00"
+  },
+  {
+    "product": {
+      "productId": "product 1",
+      "valuationType": "MovingAverage"
+    },
+    "id": "9922f657-0fc5-4ea1-8369-4396037508f5",
+    "movementType": "CustomerShipment",
+    "movementQuantity": 30,
+    "movementDate": "2022-01-15T00:00"
+  },
+  {
+    "product": {
+      "productId": "product 1",
+      "valuationType": "MovingAverage"
+    },
+    "id": "9922f657-0fc5-4ea1-8369-4396037508f6",
+    "movementType": "VendorReceipt",
+    "movementQuantity": 50,
+    "acquisitionCost": 1000,
+    "movementDate": "2022-01-17T00:00"
+  }
+]
