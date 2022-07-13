@@ -1,7 +1,7 @@
 package com.infinite.inventory.sharedkernel;
 
 public enum CostingStatus {
-	NotCalculated("Not Calculated"), Calculated("Calculated"), Error("Error"), Pending("Pending");
+	NotCalculated("Not Calculated"), Calculated("Calculated"), Error("Error"), Pending("Pending"), Unknown("Unknown");
 	
 	private final String label;
 	

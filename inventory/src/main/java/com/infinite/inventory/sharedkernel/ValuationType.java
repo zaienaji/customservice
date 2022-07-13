@@ -1,7 +1,7 @@
 package com.infinite.inventory.sharedkernel;
 
 public enum ValuationType {
-	Standard("Standard"), FIFO("FIFO"), MovingAverage("Moving Average");
+	Standard("Standard"), FIFO("FIFO"), MovingAverage("Moving Average"), Unknown("Unknown");
 	
 	private final String label;
 	

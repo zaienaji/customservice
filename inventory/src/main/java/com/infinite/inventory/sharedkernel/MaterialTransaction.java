@@ -17,7 +17,8 @@ public class MaterialTransaction {
 	private LocalDateTime movementDate;
 	private CostingStatus costingStatus;
 	private String costingErrorMessage;
-	private String movementInOutCorrelationId;
+	private String movementOutCorrelationId;
+	private String customerShipmentCorrelationId;
 	
 	@Override
 	public String toString() {

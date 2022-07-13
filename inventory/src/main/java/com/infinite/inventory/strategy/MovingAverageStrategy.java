@@ -12,10 +12,10 @@ import com.infinite.inventory.CostingRepository;
 import com.infinite.inventory.MaterialTransactionRepository;
 import com.infinite.inventory.sharedkernel.Costing;
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
-import com.infinite.inventory.sharedkernel.MovementType;
 
 import static com.infinite.inventory.sharedkernel.CostingStatus.*;
 import static com.infinite.inventory.util.Util.*;
+
 
 public class MovingAverageStrategy implements CostingStrategy {
 	
@@ -88,35 +88,31 @@ public class MovingAverageStrategy implements CostingStrategy {
 			
 			if (isNegative(pendingTransaction.getMovementQuantity())) {
 				pendingTransaction.setCostingStatus(Error);
-				pendingTransaction.setCostingErrorMessage("movement quantity is negative");
+				pendingTransaction.setCostingErrorMessage("negative movement quantity is allowed for PhysicalInventory only");
 				
 				materialTransactionRepository.save(pendingTransaction);
 				pushTransaction(pendingTransaction);
 				
 				break;
 			}
-			
-			if (pendingTransaction.getMovementType()==MovementType.VendorReceipt && isZero(pendingTransaction.getAcquisitionCost())) {
-				pendingTransaction.setCostingStatus(Error);
-				pendingTransaction.setCostingErrorMessage("movement type is vendor receipt but acquisition cost is zero");
-				
-				materialTransactionRepository.save(pendingTransaction);
-				pushTransaction(pendingTransaction);
-				
-				break;
-			}
-			
+						
 			switch (pendingTransaction.getMovementType()) {
+				case PhysicalInventoryOut:
+					handlePhysicalInventoryOut(pendingTransaction);
+					break;
+				
+				case VendorReturn:
 				case MovementOut:
 				case CustomerShipment:
 					handleCustomerShipment(pendingTransaction);
 					break;
 					
-				case PhysicalInventory:
+				case PhysicalInventoryIn:
 				case VendorReceipt:
 					handleVendorReceipt(pendingTransaction);
 					break;
-					
+				
+				case CustomerReturn:
 				case MovementIn:
 					handleMovementIn(pendingTransaction);
 					break;
@@ -129,9 +125,26 @@ public class MovingAverageStrategy implements CostingStrategy {
 		isRun.set(false);
 	}
 
+	private void handlePhysicalInventoryOut(MaterialTransaction pendingTransaction) {
+		Costing costing = costings.getLast();
+		
+		BigDecimal currentTotalCost = pendingTransaction.getAcquisitionCost();
+		costing.setTotalCost(costing.getTotalCost().subtract(currentTotalCost));
+
+		BigDecimal currentQty = costing.getTotalQty().subtract(pendingTransaction.getMovementQuantity());
+		costing.setTotalQty(currentQty);
+		
+		BigDecimal unitCost = costing.getTotalCost().divide(costing.getTotalQty(), 2, RoundingMode.HALF_DOWN);
+		costing.setUnitCost(unitCost);
+		costingRepository.save(costing);
+
+		pendingTransaction.setCostingStatus(Calculated);
+		materialTransactionRepository.save(pendingTransaction);
+	}
+
 	private void handleMovementIn(MaterialTransaction pendingTransaction) {
 		
-		String inoutCorellationId = pendingTransaction.getMovementInOutCorrelationId();
+		String inoutCorellationId = pendingTransaction.getMovementOutCorrelationId();
 		MaterialTransaction matchedMaterialTransaction = materialTransactionRepository.findByInOutCorellationId(inoutCorellationId);
 		
 		if (matchedMaterialTransaction==null) {
@@ -144,6 +157,8 @@ public class MovingAverageStrategy implements CostingStrategy {
 		pendingTransaction.setCostingStatus(Calculated);
 		
 		materialTransactionRepository.save(pendingTransaction);
+		
+		handleVendorReceipt(pendingTransaction);
 	}
 
 	private void handleVendorReceipt(MaterialTransaction pendingTransaction) {
