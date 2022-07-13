@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +20,8 @@ import com.infinite.inventory.sharedkernel.ValuationType;
 
 @Component
 public class CostingStrategyFactory {
+	
+	Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private final HashMap<Product, CostingStrategy> cache = new HashMap<>();
 	
@@ -46,26 +50,24 @@ public class CostingStrategyFactory {
 	
 	@PostConstruct
 	public void init() {
-		Consumer<MaterialTransaction> mTransactionLogger = (x) -> System.out.println(x);
+		Consumer<MaterialTransaction> mTransactionLogger = (x) -> logger.info(x.toString());
 		materialTransactionRepository.addSubscriber(mTransactionLogger);
 		
-		Consumer<Costing> costingLogger = (x) -> System.out.println(x);
+		Consumer<Costing> costingLogger = (x) -> logger.info(x.toString());
 		costingRepository.addSubscriber(costingLogger);
 	}
 	
 	public CostingStrategy get(ValuationType valuationType) {
-
 		switch (valuationType) {
 
 		case MovingAverage:
-			return new MovingAverageStrategy(materialTransactionRepository, costingRepository);
+			return new MovingAverageStrategy(materialTransactionRepository, costingRepository); //TODO refactor -> use bean instead
 
 		case FIFO:
 		case Standard:
 		default:
 			throw new IllegalArgumentException("not supported valuation type " + valuationType);
 		}
-
 	}
 
 }

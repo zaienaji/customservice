@@ -31,12 +31,13 @@ public class MovingAverageStrategy implements CostingStrategy {
 	
 	private AtomicBoolean isRun = new AtomicBoolean(false);
 	
-	//TODO make is as bean, so spring will inject dependencies
-	public MovingAverageStrategy(MaterialTransactionRepository materialTransactionRepository, CostingRepository costingRepository) {
+	public MovingAverageStrategy(MaterialTransactionRepository materialTransactionRepository,
+			CostingRepository costingRepository) {
+		super();
 		this.materialTransactionRepository = materialTransactionRepository;
 		this.costingRepository = costingRepository;
 	}
-	
+
 	public void init(TreeSet<Costing> existingCosting) {
 		existingCosting.stream().forEach(c -> costings.addLast(c));
 		

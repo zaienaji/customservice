@@ -8,7 +8,7 @@ import lombok.Data;
 public class Product {
 	
 	private String id;
-	private String corellationId;
+	private String correlationId;
 	private ValuationType valuationType;
 	
 	@Override
@@ -20,13 +20,13 @@ public class Product {
 		if (getClass() != obj.getClass())
 			return false;
 		Product other = (Product) obj;
-		return Objects.equals(corellationId, other.corellationId) && Objects.equals(id, other.id)
+		return Objects.equals(correlationId, other.correlationId) && Objects.equals(id, other.id)
 				&& valuationType == other.valuationType;
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(corellationId, id, valuationType);
+		return Objects.hash(correlationId, id, valuationType);
 	}
 	
 }
