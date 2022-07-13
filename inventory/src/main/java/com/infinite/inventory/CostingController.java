@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.infinite.inventory.sharedkernel.Costing;
-import com.infinite.inventory.sharedkernel.Product;
 
 @RestController
 @RequestMapping("/materialcosting")
@@ -20,7 +19,7 @@ public class CostingController {
 	private CostingRepository repository;
 
 	@GetMapping()
-	public Map<Product, TreeSet<Costing>> getCostings(@RequestBody String[] productCorellationIds) {
+	public Map<String, TreeSet<Costing>> getCostings(@RequestBody String[] productCorellationIds) {
 	
 		return repository.findByProductCorellationIds(productCorellationIds);
 	}
