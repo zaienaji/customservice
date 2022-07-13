@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
@@ -25,6 +27,9 @@ public class MaterialTransactionRepository {
 	}
 
 	public void save(MaterialTransaction materialTransaction) {
+		if (StringUtils.isBlank(materialTransaction.getId()))
+			materialTransaction.setId(UUID.randomUUID().toString());
+		
 		cacheByCorellationId.put(materialTransaction.getCorrelationId(), materialTransaction);		
 		notifyMaterialTransctionChanged(materialTransaction);
 	}
