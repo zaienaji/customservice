@@ -6,8 +6,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.springframework.stereotype.Component;
+
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
 
+@Component
 public class MaterialTransactionRepository {
 	
 	private final List<Consumer<MaterialTransaction>> materialTransctionChangeSubscriber = new LinkedList<Consumer<MaterialTransaction>>();

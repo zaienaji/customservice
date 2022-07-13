@@ -4,9 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
 
+import org.springframework.stereotype.Component;
+
 import com.infinite.inventory.sharedkernel.Costing;
 import com.infinite.inventory.sharedkernel.Product;
 
+@Component
 public class CostingRepository {
 	
 	Map<Product, TreeSet<Costing>> cache = new HashMap<>();
