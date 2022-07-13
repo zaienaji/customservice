@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.infinite.inventory.MaterialTransactionRepository;
 import com.infinite.inventory.sharedkernel.Costing;
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
 import com.infinite.inventory.sharedkernel.MovementType;

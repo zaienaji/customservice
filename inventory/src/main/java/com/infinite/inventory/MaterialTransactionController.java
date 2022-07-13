@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
-import com.infinite.inventory.strategy.MaterialTransactionRepository;
 
 @RestController
 @RequestMapping("/materialtransaction")

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-public class Costing {
+public class Costing implements Comparable<Costing> {
 	
 	private String id;
 	private String correlationId;
@@ -29,5 +29,9 @@ public class Costing {
 				+ totalQty + ", unitCost=" + unitCost + ", totalCost=" + totalCost + ", validFrom=" + validFrom
 				+ ", validTo=" + validTo + "]";
 	}
-	
+
+	@Override
+	public int compareTo(Costing o) {
+		return this.validFrom.compareTo(o.validFrom);
+	}
 }

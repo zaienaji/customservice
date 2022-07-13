@@ -6,6 +6,7 @@ import java.util.TreeSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.infinite.inventory.MaterialTransactionRepository;
 import com.infinite.inventory.sharedkernel.Costing;
 import com.infinite.inventory.sharedkernel.Product;
 import com.infinite.inventory.sharedkernel.ValuationType;
