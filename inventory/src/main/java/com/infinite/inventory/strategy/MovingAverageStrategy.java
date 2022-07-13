@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.infinite.inventory.CostingRepository;
 import com.infinite.inventory.MaterialTransactionRepository;
 import com.infinite.inventory.sharedkernel.Costing;
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
@@ -26,11 +27,14 @@ public class MovingAverageStrategy implements CostingStrategy {
 	private final LinkedList<MaterialTransaction> pendingTransactions = new LinkedList<>();
 	
 	private final MaterialTransactionRepository materialTransactionRepository;
+	private final CostingRepository costingRepository;
 	
 	private AtomicBoolean isRun = new AtomicBoolean(false);
 	
-	public MovingAverageStrategy(MaterialTransactionRepository materialTransactionRepository) {
+	//TODO make is as bean, so spring will inject dependencies
+	public MovingAverageStrategy(MaterialTransactionRepository materialTransactionRepository, CostingRepository costingRepository) {
 		this.materialTransactionRepository = materialTransactionRepository;
+		this.costingRepository = costingRepository;
 	}
 	
 	public void init(TreeSet<Costing> existingCosting) {
@@ -119,10 +123,6 @@ public class MovingAverageStrategy implements CostingStrategy {
 				default:
 					throw new IllegalArgumentException("Unexpected value: " + pendingTransaction.getMovementType());
 			}
-			
-			//TODO move to log
-			System.out.println(costings.getLast());
-			System.out.println(pendingTransaction);
 		}
 		
 		isRun.set(false);
@@ -157,8 +157,11 @@ public class MovingAverageStrategy implements CostingStrategy {
 		BigDecimal unitCost = totalCost.divide(totalQty, 2, RoundingMode.HALF_DOWN);
 		LocalDateTime accountingDate = pendingTransaction.getMovementDate();
 		
-		if (costings.size()>0)
-			costings.getLast().setValidTo(accountingDate);
+		if (costings.size()>0) {
+			Costing recentCosting = costings.getLast();
+			recentCosting.setValidTo(accountingDate);
+			costingRepository.save(recentCosting);
+		}
 		
 		Costing newCosting = new Costing(pendingTransaction.getProduct());
 		newCosting.setTotalCost(totalCost);
@@ -167,9 +170,9 @@ public class MovingAverageStrategy implements CostingStrategy {
 		newCosting.setValidFrom(accountingDate);
 		newCosting.setValidTo(doomsDay);
 		costings.addLast(newCosting);
+		costingRepository.save(newCosting);
 		
 		pendingTransaction.setCostingStatus(Calculated);
-		
 		materialTransactionRepository.save(pendingTransaction);
 	}
 
