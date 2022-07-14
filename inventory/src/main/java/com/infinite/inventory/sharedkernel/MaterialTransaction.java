@@ -4,8 +4,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
+@ToString
 public class MaterialTransaction {
 	
 	private String id;
@@ -19,13 +21,4 @@ public class MaterialTransaction {
 	private String costingErrorMessage;
 	private String movementOutCorrelationId;
 	private String customerShipmentCorrelationId;
-	
-	@Override
-	public String toString() {
-		return "MaterialTransaction [id=" + id + ", correlationId=" + correlationId + ", product=" + product
-				+ ", movementType=" + movementType + ", movementQuantity=" + movementQuantity + ", acquisitionCost="
-				+ acquisitionCost + ", movementDate=" + movementDate + ", costingStatus=" + costingStatus
-				+ ", costingErrorMessage=" + costingErrorMessage + "]";
-	}
-	
 }

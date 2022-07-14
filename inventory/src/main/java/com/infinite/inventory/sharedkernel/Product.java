@@ -3,8 +3,10 @@ package com.infinite.inventory.sharedkernel;
 import java.util.Objects;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
+@ToString
 public class Product {
 	
 	private String id;

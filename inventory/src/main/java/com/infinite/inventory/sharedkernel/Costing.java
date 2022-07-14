@@ -4,8 +4,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
+@ToString
 public class Costing implements Comparable<Costing> {
 	
 	private String id;
@@ -21,13 +23,6 @@ public class Costing implements Comparable<Costing> {
 	public Costing(Product product) {
 		super();
 		this.product = product;
-	}
-
-	@Override
-	public String toString() {
-		return "Costing [id=" + id + ", correlationId=" + correlationId + ", product=" + product + ", totalQty="
-				+ totalQty + ", unitCost=" + unitCost + ", totalCost=" + totalCost + ", validFrom=" + validFrom
-				+ ", validTo=" + validTo + "]";
 	}
 
 	@Override
