@@ -205,6 +205,7 @@ public class MovingAverageStrategy implements CostingStrategy {
 		pendingTransaction.setCostingStatus(Calculated);
 		
 		materialTransactionRepository.save(pendingTransaction);
+		costingRepository.save(costing);
 	}
 
 	private MaterialTransaction getPendingTransaction() {
