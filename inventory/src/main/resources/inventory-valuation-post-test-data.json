@@ -1,7 +1,7 @@
 [
     {
     "product": {
-      "productId": "product 1",
+      "correlationId": "product 1",
       "valuationType": "MovingAverage"
     },
     "id": "9922f657-0fc5-4ea1-8369-4396037508f1",
@@ -12,7 +12,7 @@
   },
   {
     "product": {
-      "productId": "product 1",
+      "correlationId": "product 1",
       "valuationType": "MovingAverage"
     },
     "id": "9922f657-0fc5-4ea1-8369-4396037508f2",
@@ -23,7 +23,7 @@
   },
   {
     "product": {
-      "productId": "product 1",
+      "correlationId": "product 1",
       "valuationType": "MovingAverage"
     },
     "id": "9922f657-0fc5-4ea1-8369-4396037508f3",
@@ -34,7 +34,7 @@
   },
   {
     "product": {
-      "productId": "product 1",
+      "correlationId": "product 1",
       "valuationType": "MovingAverage"
     },
     "id": "9922f657-0fc5-4ea1-8369-4396037508f4",
@@ -45,7 +45,7 @@
   },
   {
     "product": {
-      "productId": "product 1",
+      "correlationId": "product 1",
       "valuationType": "MovingAverage"
     },
     "id": "9922f657-0fc5-4ea1-8369-4396037508f5",
@@ -55,7 +55,7 @@
   },
   {
     "product": {
-      "productId": "product 1",
+      "correlationId": "product 1",
       "valuationType": "MovingAverage"
     },
     "id": "9922f657-0fc5-4ea1-8369-4396037508f6",
