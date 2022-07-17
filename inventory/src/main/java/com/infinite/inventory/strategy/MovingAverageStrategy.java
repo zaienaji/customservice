@@ -97,6 +97,10 @@ public class MovingAverageStrategy implements CostingStrategy {
 			}
 						
 			switch (pendingTransaction.getMovementType()) {
+				case PhysicalInventoryIn:
+					handlePhysicalInventoryIn(pendingTransaction);
+					break;
+					
 				case PhysicalInventoryOut:
 					handlePhysicalInventoryOut(pendingTransaction);
 					break;
@@ -106,8 +110,7 @@ public class MovingAverageStrategy implements CostingStrategy {
 				case CustomerShipment:
 					handleCustomerShipment(pendingTransaction);
 					break;
-					
-				case PhysicalInventoryIn:
+				
 				case VendorReceipt:
 					handleVendorReceipt(pendingTransaction);
 					break;
@@ -125,21 +128,72 @@ public class MovingAverageStrategy implements CostingStrategy {
 		isRun.set(false);
 	}
 
+	private void handlePhysicalInventoryIn(MaterialTransaction pendingTransaction) {
+		if (costings.size()==0) {
+			pendingTransaction.setCostingStatus(Error);
+			pendingTransaction.setCostingErrorMessage("no current costing information avaialable");
+			
+			pushTransaction(pendingTransaction);
+			return;
+		}
+		
+		//TODO review implementation
+		if (isNonZero(pendingTransaction.getAcquisitionCost())) {
+			pendingTransaction.setCostingStatus(Calculated);
+			materialTransactionRepository.save(pendingTransaction);
+			
+			Costing recentCost = costings.getLast();
+			Costing newCosting = new Costing(pendingTransaction.getProduct());
+			newCosting.setTotalQty(recentCost.getTotalQty().add(pendingTransaction.getMovementQuantity()));
+			newCosting.setTotalCost(recentCost.getTotalCost().add(pendingTransaction.getAcquisitionCost()));
+			newCosting.setUnitCost(newCosting.getTotalCost().divide(newCosting.getTotalQty(), 2, RoundingMode.HALF_DOWN));
+			newCosting.setValidFrom(pendingTransaction.getMovementDate());
+			costings.addLast(newCosting);
+			costingRepository.save(newCosting);
+		} else {
+			Costing recentCost = costings.getLast();
+			pendingTransaction.setAcquisitionCost(recentCost.getUnitCost().multiply(pendingTransaction.getMovementQuantity()));
+			pendingTransaction.setCostingStatus(Calculated);
+			materialTransactionRepository.save(pendingTransaction);
+			
+			recentCost.setValidTo(pendingTransaction.getMovementDate());
+			costingRepository.save(recentCost);
+			
+			Costing newCosting = new Costing(pendingTransaction.getProduct());
+			newCosting.setTotalQty(recentCost.getTotalQty().add(pendingTransaction.getMovementQuantity()));
+			newCosting.setTotalCost(recentCost.getTotalCost().add(pendingTransaction.getAcquisitionCost()));
+			newCosting.setUnitCost(newCosting.getTotalCost().divide(newCosting.getTotalQty(), 2, RoundingMode.HALF_DOWN));
+			newCosting.setValidFrom(pendingTransaction.getMovementDate());
+			costings.addLast(newCosting);
+			costingRepository.save(newCosting);
+		}
+		
+	}
+
+	
+
+	private boolean isNonZero(BigDecimal number) {
+		return number != null && number.compareTo(BigDecimal.ZERO)!=0;
+	}
+
 	private void handlePhysicalInventoryOut(MaterialTransaction pendingTransaction) {
-		Costing costing = costings.getLast();
+		if (costings.size()==0) {
+			pendingTransaction.setCostingStatus(Error);
+			pendingTransaction.setCostingErrorMessage("no current costing information avaialable");
+			
+			pushTransaction(pendingTransaction);
+			return;
+		}
 		
-		BigDecimal currentTotalCost = pendingTransaction.getAcquisitionCost();
-		costing.setTotalCost(costing.getTotalCost().subtract(currentTotalCost));
-
-		BigDecimal currentQty = costing.getTotalQty().subtract(pendingTransaction.getMovementQuantity());
-		costing.setTotalQty(currentQty);
+		//TODO handle when acquisition cost exists.
 		
-		BigDecimal unitCost = costing.getTotalCost().divide(costing.getTotalQty(), 2, RoundingMode.HALF_DOWN);
-		costing.setUnitCost(unitCost);
-		costingRepository.save(costing);
-
+		Costing recentCost = costings.getLast();
+		pendingTransaction.setAcquisitionCost(recentCost.getUnitCost().multiply(pendingTransaction.getMovementQuantity()));
 		pendingTransaction.setCostingStatus(Calculated);
 		materialTransactionRepository.save(pendingTransaction);
+		
+		recentCost.setTotalQty(recentCost.getTotalQty().subtract(pendingTransaction.getMovementQuantity()));
+		costingRepository.save(recentCost);
 	}
 
 	private void handleMovementIn(MaterialTransaction pendingTransaction) {
