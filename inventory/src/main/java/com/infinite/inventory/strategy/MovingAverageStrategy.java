@@ -8,6 +8,11 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.management.OperationsException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.infinite.inventory.CostingRepository;
 import com.infinite.inventory.MaterialTransactionRepository;
 import com.infinite.inventory.sharedkernel.Costing;
@@ -18,6 +23,8 @@ import static com.infinite.inventory.util.Util.*;
 
 
 public class MovingAverageStrategy implements CostingStrategy {
+	
+	Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private final static LocalDateTime doomsDay = LocalDateTime.of(9999, 12, 31, 0, 0);
 
@@ -84,115 +91,121 @@ public class MovingAverageStrategy implements CostingStrategy {
 				break;
 			
 			MaterialTransaction pendingTransaction = getPendingTransaction();
-			System.out.println("processing transaction id: "+pendingTransaction.getId());
+			logger.info("processing transaction id: "+pendingTransaction.getId());
 			
-			if (isNegative(pendingTransaction.getMovementQuantity())) {
+			if (pendingTransaction.getCostingStatus()==Error)
+				break;
+			
+			try {
+				handlePendingTransaction(pendingTransaction);
+			} catch (Exception e) {
+				logger.error(
+						String.format("Transaction with correlation id %s with product correlation id %s throw error message: %s", 
+								pendingTransaction.getCorrelationId(), pendingTransaction.getProduct().getCorrelationId(), e.getMessage()));
+				
+				pendingTransaction.setCostingErrorMessage(e.getMessage());
 				pendingTransaction.setCostingStatus(Error);
-				pendingTransaction.setCostingErrorMessage("negative movement quantity is allowed for PhysicalInventory only");
 				
 				materialTransactionRepository.save(pendingTransaction);
 				pushTransaction(pendingTransaction);
-				
-				break;
-			}
-						
-			switch (pendingTransaction.getMovementType()) {
-				case PhysicalInventoryIn:
-					handlePhysicalInventoryIn(pendingTransaction);
-					break;
-					
-				case PhysicalInventoryOut:
-					handlePhysicalInventoryOut(pendingTransaction);
-					break;
-				
-				case VendorReturn:
-				case MovementOut:
-				case CustomerShipment:
-					handleCustomerShipment(pendingTransaction);
-					break;
-				
-				case VendorReceipt:
-					handleVendorReceipt(pendingTransaction);
-					break;
-				
-				case CustomerReturn:
-				case MovementIn:
-					handleMovementIn(pendingTransaction);
-					break;
-					
-				default:
-					throw new IllegalArgumentException("Unexpected value: " + pendingTransaction.getMovementType());
 			}
 		}
 		
 		isRun.set(false);
 	}
 
-	private void handlePhysicalInventoryIn(MaterialTransaction pendingTransaction) {
-		if (costings.size()==0) {
-			pendingTransaction.setCostingStatus(Error);
-			pendingTransaction.setCostingErrorMessage("no current costing information avaialable");
-			
-			pushTransaction(pendingTransaction);
-			return;
+	private void handlePendingTransaction(MaterialTransaction pendingTransaction) throws OperationsException {
+		if (isNegative(pendingTransaction.getMovementQuantity()))
+			throw new OperationsException("negative movement quantity is allowed for PhysicalInventory only");
+		
+		switch (pendingTransaction.getMovementType()) {
+		case PhysicalInventoryIn:
+			handlePhysicalInventoryIn(pendingTransaction);
+			break;
+
+		case PhysicalInventoryOut:
+			handlePhysicalInventoryOut(pendingTransaction);
+			break;
+
+		case VendorReturn:
+		case MovementOut:
+		case CustomerShipment:
+			handleCustomerShipment(pendingTransaction);
+			break;
+
+		case VendorReceipt:
+			handleVendorReceipt(pendingTransaction);
+			break;
+
+		case CustomerReturn:
+		case MovementIn:
+			handleMovementIn(pendingTransaction);
+			break;
+
+		default:
+			throw new IllegalArgumentException("Unexpected value: " + pendingTransaction.getMovementType());
 		}
 		
-		//TODO review implementation
-		if (isNonZero(pendingTransaction.getAcquisitionCost())) {
-			pendingTransaction.setCostingStatus(Calculated);
-			materialTransactionRepository.save(pendingTransaction);
+	}
+
+	private void handlePhysicalInventoryIn(MaterialTransaction pendingTransaction) throws OperationsException {
+		
+		BigDecimal acquisitionCost = pendingTransaction.getAcquisitionCost();
+		if (isNullOrZero(acquisitionCost)) {
+			if (costings.size()==0)
+				throw new OperationsException("transaction has no acquisition cost, and no recent cost, hence can not determine unit cost");
 			
 			Costing recentCost = costings.getLast();
-			Costing newCosting = new Costing(pendingTransaction.getProduct());
-			newCosting.setTotalQty(recentCost.getTotalQty().add(pendingTransaction.getMovementQuantity()));
-			newCosting.setTotalCost(recentCost.getTotalCost().add(pendingTransaction.getAcquisitionCost()));
-			newCosting.setUnitCost(newCosting.getTotalCost().divide(newCosting.getTotalQty(), 2, RoundingMode.HALF_DOWN));
-			newCosting.setValidFrom(pendingTransaction.getMovementDate());
-			costings.addLast(newCosting);
-			costingRepository.save(newCosting);
-		} else {
+			acquisitionCost = recentCost.getUnitCost().multiply(pendingTransaction.getMovementQuantity());
+			pendingTransaction.setAcquisitionCost(acquisitionCost);
+		}
+		
+		pendingTransaction.setCostingStatus(Calculated);
+		materialTransactionRepository.save(pendingTransaction);
+		
+		BigDecimal totalCost = acquisitionCost;
+		BigDecimal totalQuantity = pendingTransaction.getMovementQuantity();
+		BigDecimal unitCost = totalCost.divide(totalQuantity, 2, RoundingMode.HALF_DOWN);
+		
+		if (costings.size()>0) {
 			Costing recentCost = costings.getLast();
-			pendingTransaction.setAcquisitionCost(recentCost.getUnitCost().multiply(pendingTransaction.getMovementQuantity()));
-			pendingTransaction.setCostingStatus(Calculated);
-			materialTransactionRepository.save(pendingTransaction);
-			
 			recentCost.setValidTo(pendingTransaction.getMovementDate());
+			
 			costingRepository.save(recentCost);
 			
-			Costing newCosting = new Costing(pendingTransaction.getProduct());
-			newCosting.setTotalQty(recentCost.getTotalQty().add(pendingTransaction.getMovementQuantity()));
-			newCosting.setTotalCost(recentCost.getTotalCost().add(pendingTransaction.getAcquisitionCost()));
-			newCosting.setUnitCost(newCosting.getTotalCost().divide(newCosting.getTotalQty(), 2, RoundingMode.HALF_DOWN));
-			newCosting.setValidFrom(pendingTransaction.getMovementDate());
-			costings.addLast(newCosting);
-			costingRepository.save(newCosting);
+			totalCost = totalCost.add(recentCost.getTotalQty());
+			totalQuantity = totalQuantity.add(recentCost.getTotalQty());
+			unitCost = totalCost.divide(totalQuantity, 2, RoundingMode.HALF_DOWN);
 		}
 		
-	}
-
-	
-
-	private boolean isNonZero(BigDecimal number) {
-		return number != null && number.compareTo(BigDecimal.ZERO)!=0;
-	}
-
-	private void handlePhysicalInventoryOut(MaterialTransaction pendingTransaction) {
-		if (costings.size()==0) {
-			pendingTransaction.setCostingStatus(Error);
-			pendingTransaction.setCostingErrorMessage("no current costing information avaialable");
-			
-			pushTransaction(pendingTransaction);
-			return;
-		}
+		Costing newCosting = new Costing(pendingTransaction.getProduct());
+		newCosting.setTotalQty(totalQuantity);
+		newCosting.setTotalCost(totalCost);
+		newCosting.setUnitCost(unitCost);
+		newCosting.setValidFrom(pendingTransaction.getMovementDate());
+		costings.addLast(newCosting);
 		
-		//TODO handle when acquisition cost exists.
+		costingRepository.save(newCosting);
+	}
+
+	private void handlePhysicalInventoryOut(MaterialTransaction pendingTransaction) throws OperationsException {
+		
+		if (costings.size()==0)
+			throw new OperationsException("transaction has no acquisition cost, and no recent cost, hence can not determine unit cost");
 		
 		Costing recentCost = costings.getLast();
-		pendingTransaction.setAcquisitionCost(recentCost.getUnitCost().multiply(pendingTransaction.getMovementQuantity()));
+			
+		BigDecimal acquisitionCost = pendingTransaction.getAcquisitionCost();
+		if (isNullOrZero(acquisitionCost)) {
+			acquisitionCost = recentCost.getUnitCost().multiply(pendingTransaction.getMovementQuantity());
+			pendingTransaction.setAcquisitionCost(recentCost.getUnitCost().multiply(pendingTransaction.getMovementQuantity()));
+		}
+		
 		pendingTransaction.setCostingStatus(Calculated);
 		materialTransactionRepository.save(pendingTransaction);
 		
 		recentCost.setTotalQty(recentCost.getTotalQty().subtract(pendingTransaction.getMovementQuantity()));
+		recentCost.setTotalCost(recentCost.getTotalCost().subtract(acquisitionCost));
 		costingRepository.save(recentCost);
 	}
 
