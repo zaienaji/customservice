@@ -45,8 +45,9 @@ select	a.m_transaction_id  as "correllationId",
 			 when (a.movementtype in ('I-', 'I+')) then
 			 	(select coalesce(cost, 0::numeric) from m_inventoryline x where x.m_inventoryline_id = a.m_inventoryline_id )
 			 end as "acquisitionCost",
-		a.movementdate as "movementDate", --TODO reformat date
-		'NotCalculated' as "costingStatus"
+		TO_CHAR(a.movementdate :: timestamp, 'yyyy-MM-ddThh:mm') as "movementDate",
+		'NotCalculated' as "costingStatus",
+		a.m_movementline_id as "movementOutCorrelationId"
 from m_transaction a
 where a.m_product_id ='A69E62DBDDD44FF7B3A42100A6462641'
 order by a.movementdate  asc, a.trxprocessdate asc
