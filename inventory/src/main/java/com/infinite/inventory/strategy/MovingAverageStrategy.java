@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
@@ -212,14 +213,14 @@ public class MovingAverageStrategy implements CostingStrategy {
 	private void handleMovementIn(MaterialTransaction pendingTransaction) {
 		
 		String inoutCorellationId = pendingTransaction.getMovementOutCorrelationId();
-		MaterialTransaction matchedMaterialTransaction = materialTransactionRepository.findByInOutCorellationId(inoutCorellationId);
+		Optional<MaterialTransaction> matchedMaterialTransaction = materialTransactionRepository.findByMovementOutCorrelationId(inoutCorellationId);
 		
-		if (matchedMaterialTransaction==null) {
+		if (matchedMaterialTransaction.isEmpty()) {
 			appendTransaction(pendingTransaction);
 			return;
 		}
 		
-		BigDecimal transactionCost = matchedMaterialTransaction.getAcquisitionCost();
+		BigDecimal transactionCost = matchedMaterialTransaction.get().getAcquisitionCost();
 		pendingTransaction.setAcquisitionCost(transactionCost);
 		pendingTransaction.setCostingStatus(Calculated);
 		
