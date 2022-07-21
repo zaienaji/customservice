@@ -136,12 +136,12 @@ public class MovingAverageStrategy implements CostingStrategy {
 		case VendorReceipt:
 			handleVendorReceipt(pendingTransaction);
 			break;
-
-		case CustomerReturn:
+			
 		case MovementIn:
 			handleMovementIn(pendingTransaction);
 			break;
 
+		case CustomerReturn:
 		default:
 			throw new IllegalArgumentException("Unexpected value: " + pendingTransaction.getMovementType());
 		}
