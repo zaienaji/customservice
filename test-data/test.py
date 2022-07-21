@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import json
 import math
 
@@ -11,8 +12,8 @@ class MaterialTransaction(object):
     def __init__(self, correlationId: str, product: Product):
         self.correlationId = correlationId
         self.product = product
-        
-filename = 'm_transaction_202207212127_Copy.csv'
+
+filename = 'm_transaction_Copy.csv'
 df = pd.read_csv(filename)
 
 mTransactions = []
@@ -25,6 +26,9 @@ for index, row in df.iterrows():
     mTransaction.acquisitionCost = None if math.isnan(row['acquisitionCost']) else row['acquisitionCost']
     mTransaction.movementDate = row['movementDate']
     mTransaction.costingStatus = row['costingStatus']
+    
+    if not (row['movementOutCorrelationId'] is np.nan):
+        mTransaction.movementOutCorrelationId = row['movementOutCorrelationId']
     
     mTransactions.append(mTransaction)
 
