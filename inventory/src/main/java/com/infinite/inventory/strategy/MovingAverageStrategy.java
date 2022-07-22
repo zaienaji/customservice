@@ -92,7 +92,7 @@ public class MovingAverageStrategy implements CostingStrategy {
 				break;
 			
 			MaterialTransaction pendingTransaction = getPendingTransaction();
-			logger.info("processing transaction id: "+pendingTransaction.getId());
+			logger.info("processing transaction correlation id: "+pendingTransaction.getCorrelationId());
 			
 			if (pendingTransaction.getCostingStatus()==Error)
 				break;
@@ -216,7 +216,12 @@ public class MovingAverageStrategy implements CostingStrategy {
 		Optional<MaterialTransaction> matchedMaterialTransaction = materialTransactionRepository.findByMovementOutCorrelationId(inoutCorellationId);
 		
 		if (matchedMaterialTransaction.isEmpty()) {
+			pendingTransaction.setCostingStatus(Error);
+			pendingTransaction.setCostingErrorMessage("can not find matched movement out transaction");
+			materialTransactionRepository.save(pendingTransaction);
+			
 			appendTransaction(pendingTransaction);
+			
 			return;
 		}
 		
