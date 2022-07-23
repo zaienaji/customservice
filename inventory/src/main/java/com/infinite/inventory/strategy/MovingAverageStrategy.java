@@ -192,7 +192,7 @@ public class MovingAverageStrategy implements CostingStrategy {
 	private void handlePhysicalInventoryOut(MaterialTransaction pendingTransaction) throws OperationsException {
 		
 		if (costings.size()==0)
-			throw new OperationsException("transaction has no acquisition cost, and no recent cost, hence can not determine unit cost");
+			throw new OperationsException("physical inventory out can not find recent cost, hence can not determine unit cost");
 		
 		Costing recentCost = costings.getLast();
 			
