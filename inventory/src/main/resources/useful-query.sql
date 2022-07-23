@@ -56,7 +56,7 @@ select	a.m_transaction_id  as "correllationId",
 			 when (a.movementtype in ('I-', 'I+')) then
 			 	(select coalesce(cost, 0::numeric) from m_inventoryline x where x.m_inventoryline_id = a.m_inventoryline_id )
 			 end as "acquisitionCost",
-		TO_CHAR(a.movementdate :: timestamp, 'yyyy-MM-ddThh:mm') as "movementDate",
+		TO_CHAR(a.movementdate :: timestamp, 'yyyy-MM-ddThh:mm:ss') as "movementDate",
 		'NotCalculated' as "costingStatus",
 		a.m_movementline_id as "movementOutCorrelationId"
 from m_transaction a
