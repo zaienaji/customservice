@@ -21,8 +21,8 @@ select	a.m_transaction_id  as "correllationId",
 			 when (a.movementtype='M+') then 'MovementIn'
 			 when (a.movementtype='V+') then 'VendorReceipt'
 			 when (a.movementtype='V-') then 'VendorReturn'
-			 when (a.movementtype='I-') then 'PhysicalInventoryOut'
-			 when (a.movementtype='I+') then 'PhysicalInventoryIn'
+			 when (a.movementtype in ('I+', 'I-') and a.movementqty<0) then 'PhysicalInventoryOut'
+			 when (a.movementtype in ('I+', 'I-') and a.movementqty>=0) then 'PhysicalInventoryIn'
 			 else 'Unknown'
 			 end as "movementType",
 		case when (a.movementtype='C-' and a.movementqty<0) then a.movementqty*(-1)
