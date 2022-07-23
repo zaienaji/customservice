@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.infinite.inventory.sharedkernel.Costing;
 import com.infinite.inventory.sharedkernel.Product;
+import com.infinite.inventory.sharedkernel.SortCostingByValidFrom;
 
 @Component
 public class CostingRepository {
@@ -23,7 +24,6 @@ public class CostingRepository {
 	
 	public Map<String, TreeSet<Costing>> findByProductCorellationIds(String[] productCorellationIds) {
 		Map<String, TreeSet<Costing>> result = new HashMap<>();
-		
 		for (String corellationId : productCorellationIds) {
 			if (costingsByProductCorrelationId.containsKey(corellationId))
 				result.put(corellationId, costingsByProductCorrelationId.get(corellationId));
@@ -55,7 +55,7 @@ public class CostingRepository {
 			return;
 		}
 		
-		TreeSet<Costing> costings = new TreeSet<>();
+		TreeSet<Costing> costings = new TreeSet<>(new SortCostingByValidFrom());
 		costings.add(newCosting);
 		costingsByProductCorrelationId.put(newCosting.getProduct().getCorrelationId(), costings);
 		
@@ -70,6 +70,26 @@ public class CostingRepository {
 	
 	public void addSubscriber(Consumer<Costing> subscriber) {
 		subscribers.add(subscriber);
+	}
+
+	public Map<String, TreeSet<Costing>> findAll() {
+		return costingsByProductCorrelationId;
+	}
+
+	public Costing find(String id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * 
+	 * @param where SQL where clause
+	 * @param productCorellationIds additional where clause, if exists, return only costing with this product correlation id(s) 
+	 * @return
+	 */
+	public Map<String, TreeSet<Costing>> search(String where, String[] productCorellationIds) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

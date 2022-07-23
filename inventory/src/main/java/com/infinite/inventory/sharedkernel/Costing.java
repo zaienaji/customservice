@@ -8,7 +8,7 @@ import lombok.ToString;
 
 @Data
 @ToString
-public class Costing implements Comparable<Costing> {
+public class Costing {
 	
 	private String id;
 	private String correlationId;
@@ -23,10 +23,5 @@ public class Costing implements Comparable<Costing> {
 	public Costing(Product product) {
 		super();
 		this.product = product;
-	}
-
-	@Override
-	public int compareTo(Costing o) {
-		return this.validFrom.compareTo(o.validFrom);
 	}
 }
