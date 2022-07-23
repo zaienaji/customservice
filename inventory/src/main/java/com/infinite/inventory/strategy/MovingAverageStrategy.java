@@ -227,9 +227,6 @@ public class MovingAverageStrategy implements CostingStrategy {
 		
 		BigDecimal transactionCost = matchedMaterialTransaction.get().getAcquisitionCost();
 		pendingTransaction.setAcquisitionCost(transactionCost);
-		pendingTransaction.setCostingStatus(Calculated);
-		
-		materialTransactionRepository.save(pendingTransaction);
 		
 		handleVendorReceipt(pendingTransaction);
 	}
