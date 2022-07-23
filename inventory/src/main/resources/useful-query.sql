@@ -21,6 +21,7 @@ select	a.m_transaction_id  as "correllationId",
 			 when (a.movementtype='M+') then 'MovementIn'
 			 when (a.movementtype='V+') then 'VendorReceipt'
 			 when (a.movementtype='V-') then 'VendorReturn'
+			 when (a.movementtype='V+' and a.movementqty<0) then 'VendorReturn'
 			 when (a.movementtype in ('I+', 'I-') and a.movementqty<0) then 'PhysicalInventoryOut'
 			 when (a.movementtype in ('I+', 'I-') and a.movementqty>=0) then 'PhysicalInventoryIn'
 			 else 'Unknown'
@@ -40,6 +41,7 @@ select	a.m_transaction_id  as "correllationId",
 			 when (a.movementtype='I+' and a.movementqty<0) then a.movementqty*(-1)
 			 when (a.movementtype='M-' and a.movementqty<0) then a.movementqty*(-1)
 			 when (a.movementtype='V-' and a.movementqty<0) then a.movementqty*(-1)
+			 when (a.movementtype='V+' and a.movementqty<0) then a.movementqty*(-1)
 			 else a.movementqty
 			 end as "movementQuantity",
 		case when (a.movementtype='V+' and a.movementqty>=0) then 
@@ -60,5 +62,8 @@ select	a.m_transaction_id  as "correllationId",
 		'NotCalculated' as "costingStatus",
 		a.m_movementline_id as "movementOutCorrelationId"
 from m_transaction a
-where a.m_product_id ='A69E62DBDDD44FF7B3A42100A6462641'
+where a.m_product_id in 
+('A69E62DBDDD44FF7B3A42100A6462641',
+ '32D2A76A81584741AF1CFD73F3BAD509',
+ 'D331AACC8E5F425A9129F530002EA669')
 order by a.movementdate  asc, a.trxprocessdate asc, "movementTypePriority" asc
