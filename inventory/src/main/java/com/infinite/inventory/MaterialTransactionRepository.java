@@ -1,6 +1,7 @@
 package com.infinite.inventory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,10 +59,18 @@ public class MaterialTransactionRepository {
 
 	public MaterialTransaction[] findByCorellationIds(String[] materialTransactionCorellationIds) {
 		List<MaterialTransaction> result = new ArrayList<>();
+		
 		for (String corellationId : materialTransactionCorellationIds) {
 			if (cacheByCorellationId.containsKey(corellationId))
 				result.add(cacheByCorellationId.get(corellationId));
 		}
+		
+		MaterialTransaction[] resultArr = result.toArray(new MaterialTransaction[result.size()]);
+		return resultArr;
+	}
+
+	public MaterialTransaction[] findAll() {
+		Collection<MaterialTransaction> result = cacheByCorellationId.values();
 		
 		MaterialTransaction[] resultArr = result.toArray(new MaterialTransaction[result.size()]);
 		return resultArr;

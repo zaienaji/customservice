@@ -1,5 +1,6 @@
 package com.infinite.inventory;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,8 @@ public class MaterialTransactionController {
 
 	@GetMapping()
 	public MaterialTransaction[] getMaterialTransactions(@RequestBody String[] materialTransactionCorellationIds) {
+		if (ArrayUtils.isEmpty(materialTransactionCorellationIds))
+			return repository.findAll();
 
 		return repository.findByCorellationIds(materialTransactionCorellationIds);
 	}
