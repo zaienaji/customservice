@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
 
+import static com.infinite.inventory.sharedkernel.CostingStatus.*;
+
 @Component
 public class MaterialTransactionRepository {
 	
@@ -72,6 +74,18 @@ public class MaterialTransactionRepository {
 	public MaterialTransaction[] findAll() {
 		Collection<MaterialTransaction> result = cacheByCorellationId.values();
 		
+		MaterialTransaction[] resultArr = result.toArray(new MaterialTransaction[result.size()]);
+		return resultArr;
+	}
+
+	public MaterialTransaction[] findAllError() {
+		List<MaterialTransaction> result = new LinkedList<>();
+		
+		for (MaterialTransaction materialTransaction : cacheByCorellationId.values()) {
+			if (materialTransaction.getCostingStatus()==Error)
+				result.add(materialTransaction);
+		}
+
 		MaterialTransaction[] resultArr = result.toArray(new MaterialTransaction[result.size()]);
 		return resultArr;
 	}
