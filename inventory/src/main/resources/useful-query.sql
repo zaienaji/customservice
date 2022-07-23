@@ -27,6 +27,7 @@ select	a.m_transaction_id  as "correllationId",
 			 end as "movementType",
 		case when (a.movementtype='C-' and a.movementqty<0) then a.movementqty*(-1)
 			 when (a.movementtype='I-' and a.movementqty<0) then a.movementqty*(-1)
+			 when (a.movementtype='I+' and a.movementqty<0) then a.movementqty*(-1)
 			 when (a.movementtype='M-' and a.movementqty<0) then a.movementqty*(-1)
 			 when (a.movementtype='V-' and a.movementqty<0) then a.movementqty*(-1)
 			 else a.movementqty
