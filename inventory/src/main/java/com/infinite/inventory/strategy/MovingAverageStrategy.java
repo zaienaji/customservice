@@ -117,7 +117,7 @@ public class MovingAverageStrategy implements CostingStrategy {
 
 	private void handlePendingTransaction(MaterialTransaction pendingTransaction) throws OperationsException {
 		if (isNegative(pendingTransaction.getMovementQuantity()))
-			throw new OperationsException("negative movement quantity is allowed for PhysicalInventory only");
+			throw new OperationsException("negative movement quantity is not allowed");
 		
 		switch (pendingTransaction.getMovementType()) {
 		case PhysicalInventoryIn:
