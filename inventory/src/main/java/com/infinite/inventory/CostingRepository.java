@@ -89,7 +89,7 @@ public class CostingRepository {
 	 */
 	public Map<String, TreeSet<Costing>> search(String where, String[] productCorellationIds) {
 		// TODO Auto-generated method stub
-		return null;
+		return new HashMap<String, TreeSet<Costing>>();
 	}
 	
 }

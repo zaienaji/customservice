@@ -23,7 +23,7 @@ public class CostingController {
 	private CostingRepository repository;
 
 	@GetMapping()
-	public Map<String, TreeSet<Costing>> getCostings(@RequestBody String[] productCorellationIds, @RequestParam String where) {
+	public Map<String, TreeSet<Costing>> getCostings(@RequestBody String[] productCorellationIds, @RequestParam(required = false) String where) {
 		if (StringUtils.isNotBlank(where))
 			return repository.search(where, productCorellationIds);
 		
