@@ -13,7 +13,7 @@ class MaterialTransaction(object):
         self.correlationId = correlationId
         self.product = product
 
-filename = 'm_transaction_Copy.csv'
+filename = 'm_transaction.csv'
 df = pd.read_csv(filename)
 
 mTransactions = []
