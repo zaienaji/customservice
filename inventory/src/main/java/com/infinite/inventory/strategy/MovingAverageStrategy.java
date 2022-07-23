@@ -210,20 +210,13 @@ public class MovingAverageStrategy implements CostingStrategy {
 		costingRepository.save(recentCost);
 	}
 
-	private void handleMovementIn(MaterialTransaction pendingTransaction) {
+	private void handleMovementIn(MaterialTransaction pendingTransaction) throws OperationsException {
 		
 		String inoutCorellationId = pendingTransaction.getMovementOutCorrelationId();
 		Optional<MaterialTransaction> matchedMaterialTransaction = materialTransactionRepository.findByMovementOutCorrelationId(inoutCorellationId);
 		
-		if (matchedMaterialTransaction.isEmpty()) {
-			pendingTransaction.setCostingStatus(Error);
-			pendingTransaction.setCostingErrorMessage("can not find matched movement out transaction");
-			materialTransactionRepository.save(pendingTransaction);
-			
-			appendTransaction(pendingTransaction);
-			
-			return;
-		}
+		if (matchedMaterialTransaction.isEmpty())
+			throw new OperationsException("can not find matched movement out transaction");
 		
 		BigDecimal transactionCost = matchedMaterialTransaction.get().getAcquisitionCost();
 		pendingTransaction.setAcquisitionCost(transactionCost);
@@ -231,7 +224,11 @@ public class MovingAverageStrategy implements CostingStrategy {
 		handleVendorReceipt(pendingTransaction);
 	}
 
-	private void handleVendorReceipt(MaterialTransaction pendingTransaction) {
+	private void handleVendorReceipt(MaterialTransaction pendingTransaction) throws OperationsException {
+		
+		if (isNullOrZero(pendingTransaction.getAcquisitionCost()))
+			throw new OperationsException("vendor receipt must have acquisition cost");
+		
 		Costing costing = null;
 		if (costings.size()>0)
 			costing = costings.getLast();
