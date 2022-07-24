@@ -2,3 +2,4 @@
 /test-data/*.csv
 /test-data/test_data.*
 /inventory/log.*
+/test-data/profiling/
