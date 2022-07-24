@@ -1,3 +1,4 @@
 /eclipse-workspace/
 /test-data/*.csv
 /test-data/test_data.*
+/inventory/log.*
