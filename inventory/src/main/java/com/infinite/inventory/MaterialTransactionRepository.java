@@ -10,6 +10,10 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
 
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
@@ -18,6 +22,9 @@ import static com.infinite.inventory.sharedkernel.CostingStatus.*;
 
 @Component
 public class MaterialTransactionRepository {
+	
+	@Autowired
+	JdbcTemplate jdbcTemplate;
 	
 	private final List<Consumer<MaterialTransaction>> materialTransctionChangeSubscriber = new LinkedList<Consumer<MaterialTransaction>>();
 	
@@ -32,8 +39,12 @@ public class MaterialTransactionRepository {
 	}
 
 	public void save(MaterialTransaction materialTransaction) {
-		if (StringUtils.isBlank(materialTransaction.getId()))
+		if (StringUtils.isBlank(materialTransaction.getId())) {
 			materialTransaction.setId(UUID.randomUUID().toString());
+			insertToDb(materialTransaction);
+		} else {
+			updateDb(materialTransaction);
+		}
 		
 		cacheByCorellationId.put(materialTransaction.getCorrelationId(), materialTransaction);
 		
@@ -41,6 +52,50 @@ public class MaterialTransactionRepository {
 			cacheByMovementOutId.put(materialTransaction.getMovementOutCorrelationId(), materialTransaction);
 		
 		notifyMaterialTransctionChanged(materialTransaction);
+	}
+
+	private void updateDb(MaterialTransaction materialTransaction) {
+		jdbcTemplate.update("UPDATE public.materialtransaction "
+				+ " SET correlation_id=?, product_correlation_id=?, product_valuation_type=?, "
+				+ " movement_type=?, movement_qty=?, acquisition_cost=?, movement_date=?,"
+				+ " costing_status=?, costing_error_message=?, movement_out_correlation_id=?,"
+				+ " customer_shipment_correlation_id=?"
+				+ " WHERE id=?", 
+				materialTransaction.getCorrelationId(),
+		    materialTransaction.getProduct().getCorrelationId(),
+		    materialTransaction.getProduct().getValuationType().toString(),
+		    materialTransaction.getMovementType().toString(),
+		    materialTransaction.getMovementQuantity(),
+		    materialTransaction.getAcquisitionCost(),
+		    materialTransaction.getMovementDate(),
+		    materialTransaction.getCostingStatus().toString(),
+		    materialTransaction.getCostingErrorMessage(),
+		    materialTransaction.getMovementOutCorrelationId(), 
+		    materialTransaction.getCustomerShipmentCorrelationId(),
+		    materialTransaction.getId());
+		
+	}
+
+	private void insertToDb(MaterialTransaction materialTransaction) {
+		jdbcTemplate.update(
+		    "INSERT INTO public.materialtransaction"
+		    + " (id, correlation_id, product_correlation_id, product_valuation_type, movement_type, movement_qty,"
+		    + "  acquisition_cost, movement_date, costing_status, costing_error_message,"
+		    + "  movement_out_correlation_id, customer_shipment_correlation_id)"
+		    + " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		    materialTransaction.getId(), 
+		    materialTransaction.getCorrelationId(),
+		    materialTransaction.getProduct().getCorrelationId(),
+		    materialTransaction.getProduct().getValuationType().toString(),
+		    materialTransaction.getMovementType().toString(),
+		    materialTransaction.getMovementQuantity(),
+		    materialTransaction.getAcquisitionCost(),
+		    materialTransaction.getMovementDate(),
+		    materialTransaction.getCostingStatus().toString(),
+		    materialTransaction.getCostingErrorMessage(),
+		    materialTransaction.getMovementOutCorrelationId(), 
+		    materialTransaction.getCustomerShipmentCorrelationId()
+		);
 	}
 
 	private void notifyMaterialTransctionChanged(MaterialTransaction materialTransaction) {
