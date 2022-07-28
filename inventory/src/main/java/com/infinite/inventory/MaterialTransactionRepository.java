@@ -12,8 +12,6 @@ import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
 
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
@@ -31,13 +29,6 @@ public class MaterialTransactionRepository {
 	private final HashMap<String, MaterialTransaction> cacheByCorellationId = new HashMap<>();
 	private final HashMap<String, MaterialTransaction> cacheByMovementOutId = new HashMap<>();
 	
-	public MaterialTransaction findByCorellationId(String corellationId) {
-		if (cacheByCorellationId.containsKey(corellationId))
-			return cacheByCorellationId.get(corellationId);
-		
-		return null;
-	}
-
 	public void save(MaterialTransaction materialTransaction) {
 		if (StringUtils.isBlank(materialTransaction.getId())) {
 			materialTransaction.setId(UUID.randomUUID().toString());
@@ -48,6 +39,7 @@ public class MaterialTransactionRepository {
 		
 		cacheByCorellationId.put(materialTransaction.getCorrelationId(), materialTransaction);
 		
+		//TODO how to remove cache when all related movement in/out have been calculated?
 		if (StringUtils.isNotBlank(materialTransaction.getMovementOutCorrelationId()))
 			cacheByMovementOutId.put(materialTransaction.getMovementOutCorrelationId(), materialTransaction);
 		
@@ -114,6 +106,7 @@ public class MaterialTransactionRepository {
 		return Optional.empty();
 	}
 
+	//TODO remove cache, use database instead
 	public MaterialTransaction[] findByCorellationIds(String[] materialTransactionCorellationIds) {
 		List<MaterialTransaction> result = new ArrayList<>();
 		
@@ -126,6 +119,7 @@ public class MaterialTransactionRepository {
 		return resultArr;
 	}
 
+	//TODO remove cache, use database instead
 	public MaterialTransaction[] findAll() {
 		Collection<MaterialTransaction> result = cacheByCorellationId.values();
 		
@@ -133,6 +127,7 @@ public class MaterialTransactionRepository {
 		return resultArr;
 	}
 
+	//TODO remove cache, use database instead
 	public MaterialTransaction[] findAllError() {
 		List<MaterialTransaction> result = new LinkedList<>();
 		
