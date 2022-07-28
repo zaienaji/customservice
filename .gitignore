@@ -3,3 +3,5 @@
 /test-data/test_data.*
 /inventory/log.*
 /test-data/profiling/
+/inventory/src/main/java/com/infinite/prototype/
+/proto/
