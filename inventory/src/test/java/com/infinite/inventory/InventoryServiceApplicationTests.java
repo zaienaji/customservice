@@ -2,15 +2,21 @@ package com.infinite.inventory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class InventoryServiceApplicationTests {
@@ -38,8 +44,9 @@ class InventoryServiceApplicationTests {
 	}
 	
 	@Test
+	@Sql({"/schema.sql"})
 	public void postInventoryValuationsShouldReturnLenghtOfRecords() throws Exception {
-		String testdata = "[{\"acquisitionCost\":4800000,\"product\":{\"correlationId\":\"A69E62DBDDD44FF7B3A42100A6462641\",\"valuationType\":\"MovingAverage\"},\"movementType\":\"VendorReceipt\",\"movementQuantity\":600,\"movementDate\":\"2021-06-16T12:06:00\",\"correlationId\":\"62D8C2A0B50D444283660F87E1C63965\",\"costingStatus\":\"NotCalculated\"}]";
+		String testdata = getTestData();
 		
 		HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
@@ -53,6 +60,12 @@ class InventoryServiceApplicationTests {
 		
 		assertThat(result).isEqualTo("inventory transaction received, lenght: 1");
 		
+	}
+
+	private String getTestData() throws IOException {
+		File resource = new ClassPathResource("testdata.json").getFile();
+		String testdata = new String(Files.readAllBytes(resource.toPath()));
+		return testdata;
 	}
 
 }
