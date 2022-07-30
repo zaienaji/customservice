@@ -19,6 +19,10 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.jdbc.Sql;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -29,11 +33,30 @@ class MaterialCostingCorrectnessTest {
 
 	@Autowired
 	TestRestTemplate restTemplate;
+	
+	@ParameterizedTest
+	@CsvSource({"D331AACC8E5F425A9129F530002EA669"})
+	@Sql({ "/schema.sql" })
+	public void testMaterialCostingCorrectness_negative(String productCorrelationId) throws Exception {
+
+		String url = "http://localhost:" + this.port + "/api/inventory/materialcosting/activeonly/" + productCorrelationId;
+		
+		HttpHeaders headers=new HttpHeaders();
+		headers.add("Content-Type",MediaType.APPLICATION_JSON.toString());
+		            
+		HttpEntity<String> httpEntity = new HttpEntity<String>(null, headers);
+		
+		ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
+		
+		assertThat(response.getStatusCode() == HttpStatus.NO_CONTENT);
+	}
 
 	@ParameterizedTest
-	@CsvSource({"32D2A76A81584741AF1CFD73F3BAD509,10000,1999"})
+	@CsvSource({
+		"32D2A76A81584741AF1CFD73F3BAD509,10000,1999",
+		"A69E62DBDDD44FF7B3A42100A6462641,8000,594"})
 	@Sql({ "/schema.sql" })
-	public void testMaterialCostingCorrectness(String productCorrelationId, Double unitCost, Double totalQuantity) throws Exception {
+	public void testMaterialCostingCorrectness_positive(String productCorrelationId, Double unitCost, Double totalQuantity) throws Exception {
 
 		String url = "http://localhost:" + this.port + "/api/inventory/materialcosting/activeonly/" + productCorrelationId;
 
