@@ -6,6 +6,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,9 +40,14 @@ public class CostingController {
 	}
 	
 	@GetMapping("/activeonly/{productCorrelationId}")
-	public Costing[] getActiveCostingsByProductCorrelationId(@PathVariable String productCorrelationId) {
-		// TODO Auto-generated method stub
-		return new Costing[0];
+	public ResponseEntity<Costing> getActiveCostingsByProductCorrelationId(@PathVariable String productCorrelationId) {
+		String[] productCorrelationIds = {productCorrelationId};
+		Map<String, TreeSet<Costing>> a = repository.findByProductCorellationIds(productCorrelationIds);
+		for (TreeSet<Costing> costings : a.values()) {
+			return ResponseEntity.ok(costings.last());
+		}
+		
+		return ResponseEntity.noContent().build();
 	}
 
 }
