@@ -1,14 +1,332 @@
 [
-  {
-    "acquisitionCost": 4800000,
-    "product": {
-      "correlationId": "A69E62DBDDD44FF7B3A42100A6462641",
-      "valuationType": "MovingAverage"
+    {
+        "correlationId": "174C8CE7718643A9AA487E16CD29B55A",
+        "product": {
+            "correlationId": "D331AACC8E5F425A9129F530002EA669",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "PhysicalInventoryIn",
+        "movementQuantity": 48,
+        "acquisitionCost": 0.0,
+        "movementDate": "2021-08-24T12:08:00",
+        "costingStatus": "NotCalculated"
     },
-    "movementType": "VendorReceipt",
-    "movementQuantity": 600,
-    "movementDate": "2021-06-16T12:06:00",
-    "correlationId": "62D8C2A0B50D444283660F87E1C63965",
-    "costingStatus": "NotCalculated"
-  }
+    {
+        "correlationId": "D8DDDF7EBF274F749E7C5CE5FE393D8F",
+        "product": {
+            "correlationId": "D331AACC8E5F425A9129F530002EA669",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementOut",
+        "movementQuantity": 48,
+        "acquisitionCost": null,
+        "movementDate": "2021-08-24T12:08:00",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "D4C01A27C19F4BB3A81C585304108BDC"
+    },
+    {
+        "correlationId": "B8356B9681F24E519A923D66DEAC8F45",
+        "product": {
+            "correlationId": "D331AACC8E5F425A9129F530002EA669",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementIn",
+        "movementQuantity": 48,
+        "acquisitionCost": null,
+        "movementDate": "2021-08-24T12:08:00",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "D4C01A27C19F4BB3A81C585304108BDC"
+    },
+    {
+        "correlationId": "5F82C3050F3F41D4A3D011C6B32A26C0",
+        "product": {
+            "correlationId": "D331AACC8E5F425A9129F530002EA669",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementOut",
+        "movementQuantity": 48,
+        "acquisitionCost": null,
+        "movementDate": "2021-08-24T12:08:00",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "A31AE7243F384EEC80962007D58E5977"
+    },
+    {
+        "correlationId": "A2DE35AE17594116BB2637076273FE01",
+        "product": {
+            "correlationId": "D331AACC8E5F425A9129F530002EA669",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementIn",
+        "movementQuantity": 48,
+        "acquisitionCost": null,
+        "movementDate": "2021-08-24T12:08:00",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "A31AE7243F384EEC80962007D58E5977"
+    },
+    {
+        "correlationId": "40843454530F401EB0ADB62871BA1797",
+        "product": {
+            "correlationId": "D331AACC8E5F425A9129F530002EA669",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "CustomerShipment",
+        "movementQuantity": 1,
+        "acquisitionCost": null,
+        "movementDate": "2021-08-25T12:08:00",
+        "costingStatus": "NotCalculated"
+    },
+    {
+        "correlationId": "A1A8E3539D9447B29024100F7085B3AF",
+        "product": {
+            "correlationId": "D331AACC8E5F425A9129F530002EA669",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "CustomerShipment",
+        "movementQuantity": 1,
+        "acquisitionCost": null,
+        "movementDate": "2021-08-25T12:08:00",
+        "costingStatus": "NotCalculated"
+    },
+    {
+        "correlationId": "955E0C1DC9F044249C86103EFE932057",
+        "product": {
+            "correlationId": "D331AACC8E5F425A9129F530002EA669",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "CustomerShipment",
+        "movementQuantity": 2,
+        "acquisitionCost": null,
+        "movementDate": "2021-08-25T12:08:00",
+        "costingStatus": "NotCalculated"
+    },
+    {
+        "correlationId": "5E8692F5D30945CE9F33C60679140B62",
+        "product": {
+            "correlationId": "D331AACC8E5F425A9129F530002EA669",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementOut",
+        "movementQuantity": 14,
+        "acquisitionCost": null,
+        "movementDate": "2021-08-25T10:08:44",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "E4E7906379C24EAD80D72D4BEB58A34A"
+    },
+    {
+        "correlationId": "A03819FE5A664E3EBA06F8142B3C4ACB",
+        "product": {
+            "correlationId": "D331AACC8E5F425A9129F530002EA669",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementIn",
+        "movementQuantity": 14,
+        "acquisitionCost": null,
+        "movementDate": "2021-08-25T10:08:44",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "E4E7906379C24EAD80D72D4BEB58A34A"
+    },
+    {
+        "correlationId": "62D8C2A0B50D444283660F87E1C63965",
+        "product": {
+            "correlationId": "A69E62DBDDD44FF7B3A42100A6462641",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "VendorReceipt",
+        "movementQuantity": 600,
+        "acquisitionCost": 4800000.0,
+        "movementDate": "2021-06-16T12:06:00",
+        "costingStatus": "NotCalculated"
+    },
+    {
+        "correlationId": "DFA1AFEA3EDB43F98FABC175A66F1FF7",
+        "product": {
+            "correlationId": "A69E62DBDDD44FF7B3A42100A6462641",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementOut",
+        "movementQuantity": 600,
+        "acquisitionCost": null,
+        "movementDate": "2021-06-16T04:06:44",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "68DA84E2D65A4FEDA7A9C6FA4D321DE6"
+    },
+    {
+        "correlationId": "3567A5BCB0AD4577A1B0BDE9D7A62C56",
+        "product": {
+            "correlationId": "A69E62DBDDD44FF7B3A42100A6462641",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementIn",
+        "movementQuantity": 600,
+        "acquisitionCost": null,
+        "movementDate": "2021-06-16T04:06:44",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "68DA84E2D65A4FEDA7A9C6FA4D321DE6"
+    },
+    {
+        "correlationId": "92BA6922E7494FB3AC8DCCD8F3B65479",
+        "product": {
+            "correlationId": "A69E62DBDDD44FF7B3A42100A6462641",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementOut",
+        "movementQuantity": 600,
+        "acquisitionCost": null,
+        "movementDate": "2021-06-17T12:06:00",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "63D809833A5B4CF68890AFE7D4F0D0CC"
+    },
+    {
+        "correlationId": "F087F189654F4328B0355DFEE9CE8C09",
+        "product": {
+            "correlationId": "A69E62DBDDD44FF7B3A42100A6462641",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementIn",
+        "movementQuantity": 600,
+        "acquisitionCost": null,
+        "movementDate": "2021-06-17T12:06:00",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "63D809833A5B4CF68890AFE7D4F0D0CC"
+    },
+    {
+        "correlationId": "29B16BE0CFCE4AA5B51F0E09CF745C86",
+        "product": {
+            "correlationId": "A69E62DBDDD44FF7B3A42100A6462641",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementOut",
+        "movementQuantity": 6,
+        "acquisitionCost": null,
+        "movementDate": "2021-06-17T02:06:51",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "D899F4395FB845CBBE67ABFE4F8789D7"
+    },
+    {
+        "correlationId": "50BDEC45F170437D8A2E84A408C57964",
+        "product": {
+            "correlationId": "A69E62DBDDD44FF7B3A42100A6462641",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementIn",
+        "movementQuantity": 6,
+        "acquisitionCost": null,
+        "movementDate": "2021-06-17T02:06:51",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "D899F4395FB845CBBE67ABFE4F8789D7"
+    },
+    {
+        "correlationId": "349CAC805CD849FCBA9DFDFF440FCE08",
+        "product": {
+            "correlationId": "A69E62DBDDD44FF7B3A42100A6462641",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementOut",
+        "movementQuantity": 6,
+        "acquisitionCost": null,
+        "movementDate": "2021-06-17T02:06:54",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "3273F8A9BA4043CD8F5B7E1AC81BCA2F"
+    },
+    {
+        "correlationId": "2D95D7BF3A1145DD8110A93D61659F3A",
+        "product": {
+            "correlationId": "A69E62DBDDD44FF7B3A42100A6462641",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementIn",
+        "movementQuantity": 6,
+        "acquisitionCost": null,
+        "movementDate": "2021-06-17T02:06:54",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "3273F8A9BA4043CD8F5B7E1AC81BCA2F"
+    },
+    {
+        "correlationId": "1FE6DDD27E014FAC8DD53F5C01892851",
+        "product": {
+            "correlationId": "A69E62DBDDD44FF7B3A42100A6462641",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "CustomerShipment",
+        "movementQuantity": 1,
+        "acquisitionCost": null,
+        "movementDate": "2021-06-18T12:06:00",
+        "costingStatus": "NotCalculated"
+    },
+    {
+        "correlationId": "940F82EACF7D44C2B4FBA5E3F9C30EEB",
+        "product": {
+            "correlationId": "32D2A76A81584741AF1CFD73F3BAD509",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "VendorReceipt",
+        "movementQuantity": 2000,
+        "acquisitionCost": 20000000.0,
+        "movementDate": "2021-08-19T12:08:00",
+        "costingStatus": "NotCalculated"
+    },
+    {
+        "correlationId": "14011B0F7FCE4609AE2DA5AFC08E9673",
+        "product": {
+            "correlationId": "32D2A76A81584741AF1CFD73F3BAD509",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementOut",
+        "movementQuantity": 2000,
+        "acquisitionCost": null,
+        "movementDate": "2021-08-19T04:08:00",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "36E44A37B88344269F95520D2CAF3E25"
+    },
+    {
+        "correlationId": "F8C2DA71040C4DAFB5B075C4520CD63C",
+        "product": {
+            "correlationId": "32D2A76A81584741AF1CFD73F3BAD509",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementIn",
+        "movementQuantity": 2000,
+        "acquisitionCost": null,
+        "movementDate": "2021-08-19T04:08:00",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "36E44A37B88344269F95520D2CAF3E25"
+    },
+    {
+        "correlationId": "808C876D4D914110A3B8B42E2E3BD27F",
+        "product": {
+            "correlationId": "32D2A76A81584741AF1CFD73F3BAD509",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementOut",
+        "movementQuantity": 2000,
+        "acquisitionCost": null,
+        "movementDate": "2021-08-20T12:08:00",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "F7D4825AE3C245459682A0C615A1FD22"
+    },
+    {
+        "correlationId": "746446C492C34043927ED456F52C93BB",
+        "product": {
+            "correlationId": "32D2A76A81584741AF1CFD73F3BAD509",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "MovementIn",
+        "movementQuantity": 2000,
+        "acquisitionCost": null,
+        "movementDate": "2021-08-20T12:08:00",
+        "costingStatus": "NotCalculated",
+        "movementOutCorrelationId": "F7D4825AE3C245459682A0C615A1FD22"
+    },
+    {
+        "correlationId": "D8B2916974AE4F3D80C79FAC27E2EB2D",
+        "product": {
+            "correlationId": "32D2A76A81584741AF1CFD73F3BAD509",
+            "valuationType": "MovingAverage"
+        },
+        "movementType": "CustomerShipment",
+        "movementQuantity": 1,
+        "acquisitionCost": null,
+        "movementDate": "2021-08-21T12:08:00",
+        "costingStatus": "NotCalculated"
+    }
 ]
