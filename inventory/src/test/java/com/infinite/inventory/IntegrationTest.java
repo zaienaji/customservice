@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,14 +26,48 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.jdbc.Sql;
 
+import com.infinite.inventory.sharedkernel.CostingStatus;
+
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-class MaterialCostingCorrectnessTest {
+class IntegrationTest {
 
 	@LocalServerPort
 	private int port;
 
 	@Autowired
 	TestRestTemplate restTemplate;
+	
+	@ParameterizedTest
+	@CsvSource({ 
+		"D8B2916974AE4F3D80C79FAC27E2EB2D,Calculated,10000", 
+		"1FE6DDD27E014FAC8DD53F5C01892851,Calculated,8000",
+	    "174C8CE7718643A9AA487E16CD29B55A,Error,", 
+	    "D8DDDF7EBF274F749E7C5CE5FE393D8F,," })
+	@Sql({ "/schema.sql" })
+	public void testInventoryValuationCorrectness(String correlationId, CostingStatus costingStatus,
+	    Double acquisitionCost) throws Exception {
+
+		String url = "http://localhost:" + this.port
+		    + "/api/inventory/materialtransaction?materialTransactionCorellationIds=" + correlationId;
+
+		String body = this.restTemplate.getForObject(url, String.class);
+		JSONArray responseBody = new JSONArray(body);
+		if (costingStatus == null) {
+			assertThat(responseBody.length() == 0);
+			return;
+		}
+
+		assertThat(responseBody.length() >= 1);
+
+		JSONObject mTransaction = responseBody.getJSONObject(0);
+		CostingStatus actualCostingStatus = CostingStatus.valueOf((String) mTransaction.get("costingStatus"));
+		assertThat(actualCostingStatus == costingStatus);
+
+		if (costingStatus == CostingStatus.Calculated) {
+			BigDecimal actualAcquisitionCost = new BigDecimal((Double) mTransaction.get("acquisitionCost"));
+			assertThat(actualAcquisitionCost).isEqualTo(new BigDecimal(acquisitionCost));
+		}
+	}
 	
 	@ParameterizedTest
 	@CsvSource({"D331AACC8E5F425A9129F530002EA669"})
