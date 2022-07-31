@@ -1,7 +1,8 @@
 package com.infinite.inventory;
 
+import static com.infinite.inventory.sharedkernel.CostingStatus.Error;
+
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,8 +16,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
-
-import static com.infinite.inventory.sharedkernel.CostingStatus.*;
 
 @Component
 public class MaterialTransactionRepository {
@@ -40,6 +39,10 @@ public class MaterialTransactionRepository {
 		cacheByCorellationId.put(materialTransaction.getCorrelationId(), materialTransaction);
 		
 		//TODO how to remove cache when all related movement in/out have been calculated?
+		/*
+		 * if we save movement in transaction, with success state, then remove pair movement in out from cache
+		 * if
+		 */
 		if (StringUtils.isNotBlank(materialTransaction.getMovementOutCorrelationId()))
 			cacheByMovementOutId.put(materialTransaction.getMovementOutCorrelationId(), materialTransaction);
 		
@@ -119,12 +122,12 @@ public class MaterialTransactionRepository {
 		return resultArr;
 	}
 
-	//TODO remove cache, use database instead
 	public MaterialTransaction[] findAll() {
-		Collection<MaterialTransaction> result = cacheByCorellationId.values();
 		
-		MaterialTransaction[] resultArr = result.toArray(new MaterialTransaction[result.size()]);
-		return resultArr;
+		String query = "select * from materialtransaction";		
+		List<MaterialTransaction> result = jdbcTemplate.query(query, new MaterialCostingRowMapper());
+				
+		return result.toArray(new MaterialTransaction[result.size()]);
 	}
 
 	//TODO remove cache, use database instead

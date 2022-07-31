@@ -8,8 +8,10 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,15 @@ class IntegrationTest {
 
 	@Autowired
 	TestRestTemplate restTemplate;
+
+	@Test
+	public void testMaterialTransactionRespositoryCorrectness() throws JSONException {
+		String url = "http://localhost:" + this.port + "/api/inventory/materialtransaction";
+		String body = this.restTemplate.getForObject(url, String.class);
+		
+		JSONArray responseBody = new JSONArray(body);
+		assertThat(responseBody.length() == 26);
+	}
 	
 	@ParameterizedTest
 	@CsvSource({ 
