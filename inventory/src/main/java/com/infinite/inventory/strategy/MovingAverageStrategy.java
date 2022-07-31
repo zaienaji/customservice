@@ -1,5 +1,10 @@
 package com.infinite.inventory.strategy;
 
+import static com.infinite.inventory.sharedkernel.CostingStatus.Calculated;
+import static com.infinite.inventory.sharedkernel.CostingStatus.Error;
+import static com.infinite.inventory.util.Util.isNegative;
+import static com.infinite.inventory.util.Util.isNullOrZero;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -18,9 +23,6 @@ import com.infinite.inventory.CostingRepository;
 import com.infinite.inventory.MaterialTransactionRepository;
 import com.infinite.inventory.sharedkernel.Costing;
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
-
-import static com.infinite.inventory.sharedkernel.CostingStatus.*;
-import static com.infinite.inventory.util.Util.*;
 
 
 public class MovingAverageStrategy implements CostingStrategy {
@@ -66,6 +68,7 @@ public class MovingAverageStrategy implements CostingStrategy {
 		lock.lock();
 		try {
 			pendingTransactions.addLast(record);
+			materialTransactionRepository.save(record);
 		}
 		finally {
 			lock.unlock();
@@ -78,6 +81,7 @@ public class MovingAverageStrategy implements CostingStrategy {
 		lock.lock();
 		try {
 			pendingTransactions.addFirst(record);
+			materialTransactionRepository.save(record);
 		}
 		finally {
 			lock.unlock();
