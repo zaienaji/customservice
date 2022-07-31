@@ -1,12 +1,13 @@
 package com.infinite.inventory;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,7 @@ public class MaterialTransactionRepository {
 	JdbcTemplate jdbcTemplate;
 	
 	private final List<Consumer<MaterialTransaction>> materialTransctionChangeSubscriber = new LinkedList<Consumer<MaterialTransaction>>();
-	
-	private final HashMap<String, MaterialTransaction> cacheByCorellationId = new HashMap<>();
+
 	private final HashMap<String, MaterialTransaction> cacheByMovementOutId = new HashMap<>();
 	
 	public void save(MaterialTransaction materialTransaction) {
@@ -37,13 +37,6 @@ public class MaterialTransactionRepository {
 			updateDb(materialTransaction);
 		}
 		
-		cacheByCorellationId.put(materialTransaction.getCorrelationId(), materialTransaction);
-		
-		//TODO how to remove cache when all related movement in/out have been calculated?
-		/*
-		 * if we save movement in transaction, with success state, then remove pair movement in out from cache
-		 * if
-		 */
 		if (StringUtils.isNotBlank(materialTransaction.getMovementOutCorrelationId()))
 			cacheByMovementOutId.put(materialTransaction.getMovementOutCorrelationId(), materialTransaction);
 		
@@ -112,15 +105,12 @@ public class MaterialTransactionRepository {
 		return Optional.empty();
 	}
 
-	//TODO remove cache, use database instead
 	public MaterialTransaction[] findByCorellationIds(String[] materialTransactionCorellationIds) {
-		List<MaterialTransaction> result = new ArrayList<>();
 		
-		for (String corellationId : materialTransactionCorellationIds) {
-			if (cacheByCorellationId.containsKey(corellationId))
-				result.add(cacheByCorellationId.get(corellationId));
-		}
+		String param = Arrays.stream(materialTransactionCorellationIds).collect(Collectors.joining("', '", "'", "'"));
+		String query = String.format("select * from materialtransaction where correlation_id in (%s)", param);		
 		
+		List<MaterialTransaction> result = jdbcTemplate.query(query, new MaterialCostingRowMapper());
 		MaterialTransaction[] resultArr = result.toArray(new MaterialTransaction[result.size()]);
 		return resultArr;
 	}
