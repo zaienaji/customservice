@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
+import com.infinite.inventory.sharedkernel.MovementType;
 
 @Component
 public class MaterialTransactionRepository {
@@ -39,6 +40,9 @@ public class MaterialTransactionRepository {
 		
 		if (StringUtils.isNotBlank(materialTransaction.getMovementOutCorrelationId()))
 			cacheByMovementOutId.put(materialTransaction.getMovementOutCorrelationId(), materialTransaction);
+		
+		if (materialTransaction.getMovementType()==MovementType.MovementIn && !materialTransaction.isError())
+			cacheByMovementOutId.remove(materialTransaction.getMovementOutCorrelationId());
 		
 		notifyMaterialTransctionChanged(materialTransaction);
 	}
