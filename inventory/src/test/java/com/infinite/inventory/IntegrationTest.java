@@ -38,9 +38,23 @@ class IntegrationTest {
 
 	@Autowired
 	TestRestTemplate restTemplate;
+	
+	@Test
+	public void testMaterialTransactionRespository_shouldAbleToQueryErrorRecord() throws JSONException {
+		String url = "http://localhost:" + this.port + "/api/inventory/materialtransaction/erroronly";
+		String body = this.restTemplate.getForObject(url, String.class);
+		
+		JSONArray responseBody = new JSONArray(body);
+		assertThat(responseBody.length() == 1);
+		
+		JSONObject mTransaction = responseBody.getJSONObject(0);
+		String actualCorrelationId = (String) mTransaction.get("correlationId");
+		assertThat(actualCorrelationId).isEqualTo("174C8CE7718643A9AA487E16CD29B55A");		
+	}
+	
 
 	@Test
-	public void testMaterialTransactionRespositoryCorrectness() throws JSONException {
+	public void testMaterialTransactionRespository_shouldContainAllRecords() throws JSONException {
 		String url = "http://localhost:" + this.port + "/api/inventory/materialtransaction";
 		String body = this.restTemplate.getForObject(url, String.class);
 		

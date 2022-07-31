@@ -12,5 +12,6 @@ CREATE TABLE public.materialtransaction (
   costing_status varchar NULL,
   costing_error_message varchar NULL,
   movement_out_correlation_id varchar NULL,
-  customer_shipment_correlation_id varchar NULL
+  customer_shipment_correlation_id varchar NULL,
+  iserror boolean NOT NULL DEFAULT false
 );

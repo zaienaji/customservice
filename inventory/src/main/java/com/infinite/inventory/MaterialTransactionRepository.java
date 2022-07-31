@@ -1,7 +1,5 @@
 package com.infinite.inventory;
 
-import static com.infinite.inventory.sharedkernel.CostingStatus.Error;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -29,6 +27,9 @@ public class MaterialTransactionRepository {
 	private final HashMap<String, MaterialTransaction> cacheByMovementOutId = new HashMap<>();
 	
 	public void save(MaterialTransaction materialTransaction) {
+		
+		materialTransaction.setError(StringUtils.isNotBlank(materialTransaction.getCostingErrorMessage()));
+		
 		if (StringUtils.isBlank(materialTransaction.getId())) {
 			materialTransaction.setId(UUID.randomUUID().toString());
 			insertToDb(materialTransaction);
@@ -54,7 +55,7 @@ public class MaterialTransactionRepository {
 				+ " SET correlation_id=?, product_correlation_id=?, product_valuation_type=?, "
 				+ " movement_type=?, movement_qty=?, acquisition_cost=?, movement_date=?,"
 				+ " costing_status=?, costing_error_message=?, movement_out_correlation_id=?,"
-				+ " customer_shipment_correlation_id=?"
+				+ " customer_shipment_correlation_id=?, iserror=?"
 				+ " WHERE id=?", 
 				materialTransaction.getCorrelationId(),
 		    materialTransaction.getProduct().getCorrelationId(),
@@ -67,6 +68,7 @@ public class MaterialTransactionRepository {
 		    materialTransaction.getCostingErrorMessage(),
 		    materialTransaction.getMovementOutCorrelationId(), 
 		    materialTransaction.getCustomerShipmentCorrelationId(),
+		    materialTransaction.isError(),
 		    materialTransaction.getId());
 		
 	}
@@ -76,8 +78,8 @@ public class MaterialTransactionRepository {
 		    "INSERT INTO public.materialtransaction"
 		    + " (id, correlation_id, product_correlation_id, product_valuation_type, movement_type, movement_qty,"
 		    + "  acquisition_cost, movement_date, costing_status, costing_error_message,"
-		    + "  movement_out_correlation_id, customer_shipment_correlation_id)"
-		    + " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		    + "  movement_out_correlation_id, customer_shipment_correlation_id, iserror)"
+		    + " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		    materialTransaction.getId(), 
 		    materialTransaction.getCorrelationId(),
 		    materialTransaction.getProduct().getCorrelationId(),
@@ -89,7 +91,8 @@ public class MaterialTransactionRepository {
 		    materialTransaction.getCostingStatus().toString(),
 		    materialTransaction.getCostingErrorMessage(),
 		    materialTransaction.getMovementOutCorrelationId(), 
-		    materialTransaction.getCustomerShipmentCorrelationId()
+		    materialTransaction.getCustomerShipmentCorrelationId(),
+		    materialTransaction.isError()
 		);
 	}
 
@@ -130,17 +133,11 @@ public class MaterialTransactionRepository {
 		return result.toArray(new MaterialTransaction[result.size()]);
 	}
 
-	//TODO remove cache, use database instead
-	public MaterialTransaction[] findAllError() {
-		List<MaterialTransaction> result = new LinkedList<>();
-		
-		for (MaterialTransaction materialTransaction : cacheByCorellationId.values()) {
-			if (materialTransaction.getCostingStatus()==Error)
-				result.add(materialTransaction);
-		}
-
-		MaterialTransaction[] resultArr = result.toArray(new MaterialTransaction[result.size()]);
-		return resultArr;
+	public MaterialTransaction[] findAllError() {		
+		String query = "select * from materialtransaction where iserror=true";		
+		List<MaterialTransaction> result = jdbcTemplate.query(query, new MaterialCostingRowMapper());
+				
+		return result.toArray(new MaterialTransaction[result.size()]);
 	}
 
 }

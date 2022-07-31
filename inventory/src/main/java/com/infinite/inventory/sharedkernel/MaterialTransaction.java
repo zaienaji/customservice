@@ -21,4 +21,5 @@ public class MaterialTransaction {
 	private String costingErrorMessage;
 	private String movementOutCorrelationId;
 	private String customerShipmentCorrelationId;
+	private boolean isError;
 }
