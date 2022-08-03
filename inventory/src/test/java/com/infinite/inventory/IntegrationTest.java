@@ -108,7 +108,7 @@ class IntegrationTest {
 	@ParameterizedTest
 	@CsvSource({
 		"32D2A76A81584741AF1CFD73F3BAD509,10000,1999",
-		"A69E62DBDDD44FF7B3A42100A6462641,8000,594"})
+		"A69E62DBDDD44FF7B3A42100A6462641,8000,599"})
 	public void testMaterialCostingCorrectness_positive(String productCorrelationId, Double unitCost, Double totalQuantity) throws Exception {
 
 		String url = "http://localhost:" + this.port + "/api/inventory/materialcosting/activeonly/" + productCorrelationId;
@@ -120,7 +120,7 @@ class IntegrationTest {
 		assertThat(actualUnitCost.compareTo(new BigDecimal(unitCost))).isEqualTo(0);
 		
 		BigDecimal actualTotalQuantity = new BigDecimal(mCosting.get("totalQty").toString());
-		assertThat(actualTotalQuantity.compareTo(new BigDecimal(totalQuantity))).isEqualTo(0);
+		assertThat(actualTotalQuantity.intValue()).isEqualTo(totalQuantity.intValue());
 	}
 
 	@BeforeAll
