@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -13,51 +12,45 @@ import org.springframework.stereotype.Component;
 
 import com.infinite.inventory.sharedkernel.Costing;
 import com.infinite.inventory.sharedkernel.Product;
-import com.infinite.inventory.sharedkernel.SortCostingByValidFrom;
 
 @Component
 public class CostingRepository {
 	
-	Map<String, TreeSet<Costing>> costingsByProductCorrelationId = new HashMap<>(); //product correlation id --> Costing[]
+	Map<String, LinkedList<Costing>> cache = new HashMap<>(); //product correlation id --> Costing[]
 	
 	List<Consumer<Costing>> subscribers = new LinkedList<>();
 	
-	public Map<String, TreeSet<Costing>> findByProductCorellationIds(String[] productCorellationIds) {
-		Map<String, TreeSet<Costing>> result = new HashMap<>();
+	public Map<String, LinkedList<Costing>> findByProductCorellationIds(String[] productCorellationIds) {
+		Map<String, LinkedList<Costing>> result = new HashMap<>();
 		for (String corellationId : productCorellationIds) {
-			if (costingsByProductCorrelationId.containsKey(corellationId))
-				result.put(corellationId, costingsByProductCorrelationId.get(corellationId));
+			if (cache.containsKey(corellationId))
+				result.put(corellationId, cache.get(corellationId));
 		}
 		
 		return result;
 	}
 
-	public TreeSet<Costing> findByProduct(Product product) {
-		if (!costingsByProductCorrelationId.containsKey(product.getCorrelationId()))
-			return new TreeSet<>();
+	public LinkedList<Costing> findByProduct(Product product) {
+		if (!cache.containsKey(product.getCorrelationId()))
+			return new LinkedList<>();
 		
-		return costingsByProductCorrelationId.get(product.getCorrelationId());
+		return cache.get(product.getCorrelationId());
 	}
 
 	public void save(Costing newCosting) {
-		
-		if (StringUtils.isBlank(newCosting.getId()))
-			newCosting.setId(UUID.randomUUID().toString());
-		
 		String productCorrelationId = newCosting.getProduct().getCorrelationId();
 		
-		if (costingsByProductCorrelationId.containsKey(productCorrelationId)) {
-			TreeSet<Costing> costings = costingsByProductCorrelationId.get(productCorrelationId);
-			costings.add(newCosting);
+		if (StringUtils.isBlank(newCosting.getId())) {
+			newCosting.setId(UUID.randomUUID().toString());
 			
-			notify(newCosting);
-			
-			return;
+			LinkedList<Costing> costingChain = cache.containsKey(productCorrelationId) ? cache.get(productCorrelationId) : new LinkedList<>(); 
+			costingChain.addLast(newCosting);
+			cache.put(productCorrelationId, costingChain);
+		} else {
+			LinkedList<Costing> costingChain = cache.get(productCorrelationId);
+			costingChain.removeLast();
+			costingChain.addLast(newCosting);
 		}
-		
-		TreeSet<Costing> costings = new TreeSet<>(new SortCostingByValidFrom());
-		costings.add(newCosting);
-		costingsByProductCorrelationId.put(newCosting.getProduct().getCorrelationId(), costings);
 		
 		notify(newCosting);
 	}
@@ -72,8 +65,8 @@ public class CostingRepository {
 		subscribers.add(subscriber);
 	}
 
-	public Map<String, TreeSet<Costing>> findAll() {
-		return costingsByProductCorrelationId;
+	public Map<String, LinkedList<Costing>> findAll() {
+		return cache;
 	}
 
 	public Costing find(String id) {
@@ -87,9 +80,9 @@ public class CostingRepository {
 	 * @param productCorellationIds additional where clause, if exists, return only costing with this product correlation id(s) 
 	 * @return
 	 */
-	public Map<String, TreeSet<Costing>> search(String where, String[] productCorellationIds) {
+	public Map<String, LinkedList<Costing>> search(String where, String[] productCorellationIds) {
 		// TODO Auto-generated method stub
-		return new HashMap<String, TreeSet<Costing>>();
+		return new HashMap<String, LinkedList<Costing>>();
 	}
 	
 }

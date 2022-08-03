@@ -1,6 +1,6 @@
 package com.infinite.inventory.strategy;
 
-import java.util.TreeSet;
+import java.util.LinkedList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,7 @@ public class ExistingCostingProviderImpl implements ExistingCostingProvider {
 	private CostingRepository repository;
 
 	@Override
-	public TreeSet<Costing> get(Product product) {
+	public LinkedList<Costing> get(Product product) {
 		
 		return repository.findByProduct(product);
 	}

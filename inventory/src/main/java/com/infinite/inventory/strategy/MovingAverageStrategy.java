@@ -10,7 +10,6 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.Optional;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -48,7 +47,7 @@ public class MovingAverageStrategy implements CostingStrategy {
 		this.costingRepository = costingRepository;
 	}
 
-	public void init(TreeSet<Costing> existingCosting) {
+	public void init(LinkedList<Costing> existingCosting) {
 		existingCosting.stream().forEach(c -> costings.addLast(c));
 		
 		start();

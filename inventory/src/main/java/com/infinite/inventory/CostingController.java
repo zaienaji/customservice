@@ -1,7 +1,7 @@
 package com.infinite.inventory;
 
+import java.util.LinkedList;
 import java.util.Map;
-import java.util.TreeSet;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +24,7 @@ public class CostingController {
 	private CostingRepository repository;
 
 	@GetMapping()
-	public Map<String, TreeSet<Costing>> getCostings(@RequestBody String[] productCorellationIds, @RequestParam(required = false) String where) {
+	public Map<String, LinkedList<Costing>> getCostings(@RequestBody String[] productCorellationIds, @RequestParam(required = false) String where) {
 		if (StringUtils.isNotBlank(where))
 			return repository.search(where, productCorellationIds);
 		
@@ -42,9 +42,9 @@ public class CostingController {
 	@GetMapping("/activeonly/{productCorrelationId}")
 	public ResponseEntity<Costing> getActiveCostingsByProductCorrelationId(@PathVariable String productCorrelationId) {
 		String[] productCorrelationIds = {productCorrelationId};
-		Map<String, TreeSet<Costing>> a = repository.findByProductCorellationIds(productCorrelationIds);
-		for (TreeSet<Costing> costings : a.values()) {
-			return ResponseEntity.ok(costings.last());
+		Map<String, LinkedList<Costing>> costingsByProduct = repository.findByProductCorellationIds(productCorrelationIds);
+		for (LinkedList<Costing> costings : costingsByProduct.values()) {
+			return ResponseEntity.ok(costings.getLast());
 		}
 		
 		return ResponseEntity.noContent().build();

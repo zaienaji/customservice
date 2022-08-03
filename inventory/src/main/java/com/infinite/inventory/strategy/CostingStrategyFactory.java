@@ -1,7 +1,7 @@
 package com.infinite.inventory.strategy;
 
 import java.util.HashMap;
-import java.util.TreeSet;
+import java.util.LinkedList;
 import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
@@ -39,7 +39,7 @@ public class CostingStrategyFactory {
 			return cache.get(product);
 		
 		CostingStrategy result = get(product.getValuationType());
-		TreeSet<Costing> existingCosting = existingCostingProvider.get(product);
+		LinkedList<Costing> existingCosting = existingCostingProvider.get(product);
 		result.init(existingCosting);
 		
 		cache.put(product, result);

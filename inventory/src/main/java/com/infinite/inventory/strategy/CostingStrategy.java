@@ -1,6 +1,6 @@
 package com.infinite.inventory.strategy;
 
-import java.util.TreeSet;
+import java.util.LinkedList;
 
 import com.infinite.inventory.sharedkernel.Costing;
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
@@ -12,7 +12,7 @@ public interface CostingStrategy extends Runnable {
 	 * 
 	 * @param existingCosting existing costing records, sorted by accounting date, ascending
 	 */
-	void init(TreeSet<Costing> existingCosting);
+	void init(LinkedList<Costing> existingCosting);
 	
 	void appendTransaction(MaterialTransaction record);
 	

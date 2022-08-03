@@ -14,7 +14,7 @@
 	<name>Inventory Service</name>
 	<description>Inventory module to support ERP application</description>
 	<properties>
-		<java.version>18</java.version>
+		<java.version>17</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
