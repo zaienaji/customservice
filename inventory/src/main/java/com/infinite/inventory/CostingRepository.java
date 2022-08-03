@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -21,12 +22,12 @@ public class CostingRepository {
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 	
-	Map<String, LinkedList<Costing>> cache = new HashMap<>(); //product correlation id --> Costing[]
+	Map<String, Costing> cache = new HashMap<>(); //product correlation id --> costing (non expire)
 	
 	List<Consumer<Costing>> subscribers = new LinkedList<>();
 	
-	public Map<String, LinkedList<Costing>> findByProductCorellationIds(String[] productCorellationIds) {
-		Map<String, LinkedList<Costing>> result = new HashMap<>();
+	public Map<String, Costing> findByProductCorellationIds(String[] productCorellationIds) {
+		Map<String, Costing> result = new HashMap<>();
 		for (String corellationId : productCorellationIds) {
 			if (cache.containsKey(corellationId))
 				result.put(corellationId, cache.get(corellationId));
@@ -35,29 +36,21 @@ public class CostingRepository {
 		return result;
 	}
 
-	public LinkedList<Costing> findByProduct(Product product) {
+	public Optional<Costing> findByProduct(Product product) {
 		if (!cache.containsKey(product.getCorrelationId()))
-			return new LinkedList<>();
+			return Optional.empty();
 		
-		return cache.get(product.getCorrelationId());
+		return Optional.of(cache.get(product.getCorrelationId()));
 	}
 
 	public void save(Costing newCosting) {
 		String productCorrelationId = newCosting.getProduct().getCorrelationId();
+		cache.put(productCorrelationId, newCosting);
 		
 		if (StringUtils.isBlank(newCosting.getId())) {
 			newCosting.setId(UUID.randomUUID().toString());
-			
-			LinkedList<Costing> costingChain = cache.containsKey(productCorrelationId) ? cache.get(productCorrelationId) : new LinkedList<>(); 
-			costingChain.addLast(newCosting);
-			cache.put(productCorrelationId, costingChain);
-			
 			insertIntoDd(newCosting);
 		} else {
-			LinkedList<Costing> costingChain = cache.get(productCorrelationId);
-			costingChain.removeLast();
-			costingChain.addLast(newCosting);
-			
 			updateDb(newCosting);
 		}
 		
@@ -121,24 +114,7 @@ public class CostingRepository {
 		subscribers.add(subscriber);
 	}
 
-	public Map<String, LinkedList<Costing>> findAll() {
+	public Map<String, Costing> findAll() {
 		return cache;
 	}
-
-	public Costing find(String id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * 
-	 * @param where SQL where clause
-	 * @param productCorellationIds additional where clause, if exists, return only costing with this product correlation id(s) 
-	 * @return
-	 */
-	public Map<String, LinkedList<Costing>> search(String where, String[] productCorellationIds) {
-		// TODO Auto-generated method stub
-		return new HashMap<String, LinkedList<Costing>>();
-	}
-	
 }

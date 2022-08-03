@@ -1,6 +1,6 @@
 package com.infinite.inventory.strategy;
 
-import java.util.LinkedList;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,7 @@ public class ExistingCostingProviderImpl implements ExistingCostingProvider {
 	private CostingRepository repository;
 
 	@Override
-	public LinkedList<Costing> get(Product product) {
+	public Optional<Costing> get(Product product) {
 		
 		return repository.findByProduct(product);
 	}

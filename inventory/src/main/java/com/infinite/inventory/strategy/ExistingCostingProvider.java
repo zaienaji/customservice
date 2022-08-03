@@ -1,12 +1,12 @@
 package com.infinite.inventory.strategy;
 
-import java.util.LinkedList;
+import java.util.Optional;
 
 import com.infinite.inventory.sharedkernel.Costing;
 import com.infinite.inventory.sharedkernel.Product;
 
 public interface ExistingCostingProvider {
 	
-	LinkedList<Costing> get(Product product);
+	Optional<Costing> get(Product product);
 
 }

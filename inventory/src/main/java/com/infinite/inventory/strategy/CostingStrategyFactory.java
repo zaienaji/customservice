@@ -1,7 +1,7 @@
 package com.infinite.inventory.strategy;
 
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
@@ -16,7 +16,6 @@ import com.infinite.inventory.MaterialTransactionRepository;
 import com.infinite.inventory.sharedkernel.Costing;
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
 import com.infinite.inventory.sharedkernel.Product;
-import com.infinite.inventory.sharedkernel.ValuationType;
 
 @Component
 public class CostingStrategyFactory {
@@ -38,9 +37,8 @@ public class CostingStrategyFactory {
 		if (cache.containsKey(product))
 			return cache.get(product);
 		
-		CostingStrategy result = get(product.getValuationType());
-		LinkedList<Costing> existingCosting = existingCostingProvider.get(product);
-		result.init(existingCosting);
+		CostingStrategy result = instantiate(product);
+		result.init();
 		
 		cache.put(product, result);
 		
@@ -57,16 +55,17 @@ public class CostingStrategyFactory {
 		costingRepository.addSubscriber(costingLogger);
 	}
 	
-	public CostingStrategy get(ValuationType valuationType) {
-		switch (valuationType) {
+	public CostingStrategy instantiate(Product product) {
+		switch (product.getValuationType()) {
 
 		case MovingAverage:
-			return new MovingAverageStrategy(materialTransactionRepository, costingRepository); //TODO refactor -> use bean instead
+			Optional<Costing> costing = existingCostingProvider.get(product);
+			return new MovingAverageStrategy(materialTransactionRepository, costingRepository, costing, product);
 
 		case FIFO:
 		case Standard:
 		default:
-			throw new IllegalArgumentException("not supported valuation type " + valuationType);
+			throw new IllegalArgumentException("not supported valuation type " + product.getValuationType());
 		}
 	}
 

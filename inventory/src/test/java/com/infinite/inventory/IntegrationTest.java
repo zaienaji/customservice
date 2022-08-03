@@ -64,9 +64,9 @@ class IntegrationTest {
 	
 	@ParameterizedTest
 	@CsvSource({ 
-		"D8B2916974AE4F3D80C79FAC27E2EB2D,Calculated,10000", 
+		"D8B2916974AE4F3D80C79FAC27E2EB2D,Calculated,10000",
 		"1FE6DDD27E014FAC8DD53F5C01892851,Calculated,8000",
-	    "174C8CE7718643A9AA487E16CD29B55A,Error,", 
+	    "174C8CE7718643A9AA487E16CD29B55A,Error,",
 	    "D8DDDF7EBF274F749E7C5CE5FE393D8F,NotCalculated," })
 	public void testInventoryValuationCorrectness(String correlationId, CostingStatus costingStatus,
 	    Double acquisitionCost) throws Exception {
@@ -81,7 +81,7 @@ class IntegrationTest {
 
 		JSONObject mTransaction = responseBody.getJSONObject(0);
 		CostingStatus actualCostingStatus = CostingStatus.valueOf((String) mTransaction.get("costingStatus"));
-		assertThat(actualCostingStatus == costingStatus);
+		assertThat(actualCostingStatus).isEqualTo(costingStatus);
 
 		if (costingStatus == CostingStatus.Calculated) {
 			BigDecimal actualAcquisitionCost = new BigDecimal((Double) mTransaction.get("acquisitionCost"));
