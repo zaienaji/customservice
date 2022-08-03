@@ -246,6 +246,7 @@ public class MovingAverageStrategy implements CostingStrategy {
 		if (costings.size()>0) {
 			Costing recentCosting = costings.getLast();
 			recentCosting.setValidTo(accountingDate);
+			recentCosting.setExpired(true);
 			costingRepository.save(recentCosting);
 		}
 		
@@ -261,7 +262,7 @@ public class MovingAverageStrategy implements CostingStrategy {
 		pendingTransaction.setCostingStatus(Calculated);
 		materialTransactionRepository.save(pendingTransaction);
 	}
-
+	
 	private void handleCustomerShipment(MaterialTransaction pendingTransaction) {
 		Costing costing = costings.getLast();
 		

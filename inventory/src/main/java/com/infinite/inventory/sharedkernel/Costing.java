@@ -19,6 +19,7 @@ public class Costing {
 	private BigDecimal totalCost = BigDecimal.ZERO;
 	private LocalDateTime validFrom = LocalDateTime.of(1970, 1, 1, 0, 0);
 	private LocalDateTime validTo = LocalDateTime.of(9999, 12, 31, 0, 0);
+	private boolean isExpired = false;
 
 	public Costing(Product product) {
 		super();

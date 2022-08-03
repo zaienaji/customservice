@@ -126,7 +126,7 @@ class IntegrationTest {
 	@BeforeAll
 	public static void testPostMaterialTransaction(@Autowired TestRestTemplate restTemplate, @LocalServerPort int port, @Autowired JdbcTemplate jdbcTemplate) throws IOException {
 		
-		deleteExistingMaterialCosting(jdbcTemplate);
+		deleteExistingRecords(jdbcTemplate);
 		
 		String testdata = getMaterialCostingTestData();
 
@@ -140,9 +140,9 @@ class IntegrationTest {
 		restTemplate.postForObject(url, request, String.class);		
 	}
 
-	private static void deleteExistingMaterialCosting(JdbcTemplate jdbcTemplate) {
-		String query = "delete from materialtransaction";
-		jdbcTemplate.execute(query);
+	private static void deleteExistingRecords(JdbcTemplate jdbcTemplate) {
+		jdbcTemplate.execute("delete from materialtransaction");
+		jdbcTemplate.execute("delete from costing");
 	}
 
 	private static String getMaterialCostingTestData() throws IOException {
