@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
 import com.infinite.inventory.sharedkernel.MovementType;
+import com.infinite.inventory.sharedkernel.Product;
 
 @Component
 public class MaterialTransactionRepository {
@@ -140,6 +141,21 @@ public class MaterialTransactionRepository {
 		String query = "select * from materialtransaction where " + sqlWhereClause;
 		List<MaterialTransaction> result = jdbcTemplate.query(query, new MaterialCostingRowMapper());
 		return result.toArray(new MaterialTransaction[result.size()]);
+	}
+
+	public List<MaterialTransaction> getExistingTransactions(Product product) {
+		String sqlQuery = "select * from materialtransaction where product_correlation_id = ? order by movement_date asc, created asc";
+		List<MaterialTransaction> result = jdbcTemplate.query(sqlQuery, new MaterialCostingRowMapper(), product.getCorrelationId());
+		
+		return result;
+	}
+
+	public List<Product> findExistingProduct() {
+		
+		String sqlQuery = "select distinct  product_correlation_id, product_valuation_type from materialtransaction";
+		List<Product> result = jdbcTemplate.query(sqlQuery, new ProductRowMapper());
+		
+		return result;
 	}
 
 }

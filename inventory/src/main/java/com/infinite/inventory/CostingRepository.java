@@ -37,10 +37,17 @@ public class CostingRepository {
 	}
 
 	public Optional<Costing> findByProduct(Product product) {
-		if (!cache.containsKey(product.getCorrelationId()))
-			return Optional.empty();
+		String sqlQuery = String.format("select * from costing where product_correlation_id = '%s'", product.getCorrelationId());
 		
-		return Optional.of(cache.get(product.getCorrelationId()));
+		try {
+			Costing result = jdbcTemplate.queryForObject(sqlQuery, new CostingRowMapper());
+			return Optional.of(result);
+			
+		} catch (Exception e) {
+			
+		}
+		
+		return Optional.empty();
 	}
 
 	public void save(Costing newCosting) {

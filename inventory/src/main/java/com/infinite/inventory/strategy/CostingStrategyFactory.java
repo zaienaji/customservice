@@ -1,6 +1,7 @@
 package com.infinite.inventory.strategy;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -38,6 +39,10 @@ public class CostingStrategyFactory {
 			return cache.get(product);
 		
 		CostingStrategy result = instantiate(product);
+		
+		List<MaterialTransaction> existingTransactions = materialTransactionRepository.getExistingTransactions(product);
+		existingTransactions.stream().forEach(transaction -> result.appendTransaction(transaction));
+		
 		result.start();
 		
 		cache.put(product, result);
@@ -48,13 +53,24 @@ public class CostingStrategyFactory {
 	
 	@PostConstruct
 	public void init() {
+		addSubscriber();
+		loadCache();
+	}
+	
+	private void loadCache() {
+		List<Product> existingProduct = materialTransactionRepository.findExistingProduct();
+		existingProduct.stream().forEach(product -> get(product));
+	}
+
+	private void addSubscriber() {
 		Consumer<MaterialTransaction> mTransactionLogger = (x) -> logger.info(x.toString());
 		materialTransactionRepository.addSubscriber(mTransactionLogger);
 		
 		Consumer<Costing> costingLogger = (x) -> logger.info(x.toString());
 		costingRepository.addSubscriber(costingLogger);
+		
 	}
-	
+
 	public CostingStrategy instantiate(Product product) {
 		switch (product.getValuationType()) {
 
