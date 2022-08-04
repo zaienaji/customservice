@@ -38,7 +38,7 @@ public class CostingStrategyFactory {
 			return cache.get(product);
 		
 		CostingStrategy result = instantiate(product);
-		result.init();
+		result.start();
 		
 		cache.put(product, result);
 		

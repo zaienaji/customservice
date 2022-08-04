@@ -29,7 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.infinite.inventory.sharedkernel.CostingStatus;
-import com.infinite.inventory.util.Util;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class IntegrationTest {
@@ -39,6 +38,16 @@ class IntegrationTest {
 
 	@Autowired
 	TestRestTemplate restTemplate;
+	
+	@Test
+	public void testMaterialTransactionRespository_withWhereClause_positive() throws JSONException {
+		String url = "http://localhost:" + this.port + "/api/inventory/materialtransaction/search?sqlWhereClause=costing_status ='NotCalculated'";
+		
+		String body = this.restTemplate.getForObject(url, String.class);
+		
+		JSONArray responseBody = new JSONArray(body);
+		assertThat(responseBody.length()).isEqualTo(9);
+	}
 	
 	@Test
 	public void testMaterialTransactionRespository_shouldAbleToQueryErrorRecord() throws JSONException {
@@ -139,8 +148,6 @@ class IntegrationTest {
 		String url = "http://localhost:" + port + "/api/inventory/valuation";
 
 		restTemplate.postForObject(url, request, String.class);
-		
-		Util.SleepInMilis(30);
 	}
 
 	private static void deleteExistingRecords(JdbcTemplate jdbcTemplate) {

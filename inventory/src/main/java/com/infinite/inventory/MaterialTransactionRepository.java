@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -131,6 +132,13 @@ public class MaterialTransactionRepository {
 		String query = "select * from materialtransaction where iserror=true";		
 		List<MaterialTransaction> result = jdbcTemplate.query(query, new MaterialCostingRowMapper());
 				
+		return result.toArray(new MaterialTransaction[result.size()]);
+	}
+	
+	public MaterialTransaction[] search(String sqlWhereClause) throws DataAccessException {
+		
+		String query = "select * from materialtransaction where " + sqlWhereClause;
+		List<MaterialTransaction> result = jdbcTemplate.query(query, new MaterialCostingRowMapper());
 		return result.toArray(new MaterialTransaction[result.size()]);
 	}
 

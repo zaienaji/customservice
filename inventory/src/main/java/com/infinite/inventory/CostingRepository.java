@@ -22,7 +22,7 @@ public class CostingRepository {
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 	
-	Map<String, Costing> cache = new HashMap<>(); //product correlation id --> costing (non expire)
+	Map<String, Costing> cache = new HashMap<>(); //key is product correlation id
 	
 	List<Consumer<Costing>> subscribers = new LinkedList<>();
 	

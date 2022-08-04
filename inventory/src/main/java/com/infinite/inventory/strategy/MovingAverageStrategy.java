@@ -40,7 +40,9 @@ public class MovingAverageStrategy implements CostingStrategy {
 	private final MaterialTransactionRepository materialTransactionRepository;
 	private final CostingRepository costingRepository;
 	
-	private AtomicBoolean isRun = new AtomicBoolean(false);
+	private AtomicBoolean isWorkerAlive = new AtomicBoolean(false);
+	
+	private Thread worker;
 	
 	public MovingAverageStrategy(MaterialTransactionRepository materialTransactionRepository,
 			CostingRepository costingRepository, Optional<Costing> existingCosting, Product product) {
@@ -50,18 +52,16 @@ public class MovingAverageStrategy implements CostingStrategy {
 		this.costing = existingCosting.isPresent()? existingCosting.get() : new Costing(product);
 	}
 
-	public void init() {
-		start();
-	}
-
-	private void start() {
-		if (isRun.get())
+	public void start() {
+		if (isWorkerAlive.get())
 			return;
 		
-		isRun.set(true);
+		isWorkerAlive.set(true);
 		
-		Thread thread = new Thread(this);
-		thread.start();
+		if (this.worker==null || !this.worker.isAlive()) {
+			this.worker = new Thread(this);
+			this.worker.start();
+		}			
 	}
 
 	public void appendTransaction(MaterialTransaction record) {
@@ -98,8 +98,11 @@ public class MovingAverageStrategy implements CostingStrategy {
 			MaterialTransaction pendingTransaction = getPendingTransaction();
 			logger.info("processing transaction correlation id: "+pendingTransaction.getCorrelationId());
 			
-			if (pendingTransaction.getCostingStatus()==Error)
+			if (pendingTransaction.getCostingStatus()==Error) {
+				pushTransaction(pendingTransaction);
 				break;
+			}
+				
 			
 			try {
 				handlePendingTransaction(pendingTransaction);
@@ -116,7 +119,7 @@ public class MovingAverageStrategy implements CostingStrategy {
 			}
 		}
 		
-		isRun.set(false);
+		isWorkerAlive.set(false);
 	}
 
 	private void handlePendingTransaction(MaterialTransaction pendingTransaction) throws OperationsException {
