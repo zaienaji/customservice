@@ -1,10 +1,14 @@
 package com.infinite.inventory;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +28,13 @@ public class MaterialTransactionController {
 			return repository.findAll();
 
 		return repository.findByCorellationIds(materialTransactionCorellationIds);
+	}
+	
+	@PutMapping()
+	public ResponseEntity<?>  update(@RequestBody MaterialTransaction[] materialTransactions) {
+		
+		Arrays.stream(materialTransactions).forEach(record -> repository.update(record));
+		return ResponseEntity.ok(materialTransactions);
 	}
 	
 	@GetMapping("/erroronly")

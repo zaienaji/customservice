@@ -40,6 +40,38 @@ class IntegrationTest {
 	TestRestTemplate restTemplate;
 	
 	@Test
+	public void testMaterialTransactionUpdate_positive() throws JSONException {
+		
+		String url = "http://localhost:" + this.port + "/api/inventory/materialtransaction/erroronly";
+		String body = this.restTemplate.getForObject(url, String.class);
+		
+		JSONArray responseBody = new JSONArray(body);
+		JSONObject mTransaction = responseBody.getJSONObject(0);
+		
+		mTransaction.remove("costingErrorMessage");
+		mTransaction.put("costingErrorMessage", "updated message");
+		
+		JSONArray testData = new JSONArray();
+		testData.put(mTransaction);
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+
+		HttpEntity<String> request = new HttpEntity<String>(testData.toString(), headers);
+
+		String urlForUpdate = "http://localhost:" + port + "/api/inventory/materialtransaction";
+
+		body = restTemplate.exchange(urlForUpdate, HttpMethod.PUT, request, String.class).getBody();
+		
+		responseBody = new JSONArray(body);
+		assertThat(responseBody.length()).isEqualTo(1);
+		
+		mTransaction = responseBody.getJSONObject(0);
+		String actualErrorMessage = (String) mTransaction.get("costingErrorMessage");
+		assertThat(actualErrorMessage).isEqualTo("updated message");
+	}
+	
+	@Test
 	public void testMaterialTransactionRespository_withWhereClause_positive() throws JSONException {
 		String url = "http://localhost:" + this.port + "/api/inventory/materialtransaction/search?sqlWhereClause=costing_status ='NotCalculated'";
 		
