@@ -11,7 +11,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import com.infinite.inventory.sharedkernel.CostingStatus;
 import com.infinite.inventory.util.Util;
 
+@TestMethodOrder(OrderAnnotation.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class IntegrationTest {
 
@@ -41,6 +45,43 @@ class IntegrationTest {
 	TestRestTemplate restTemplate;
 	
 	@Test
+	@Order(8)
+	public void fixWrongTransaction_correctness_positive() throws JSONException {
+			
+		String testdata = "[\r\n"
+				+ "    {\r\n"
+				+ "        \"correlationId\": \"E943527137A24A9E8F9209C058DF2A1D\",\r\n"
+				+ "        \"product\": {\r\n"
+				+ "            \"correlationId\": \"D331AACC8E5F425A9129F530002EA669\",\r\n"
+				+ "            \"valuationType\": \"MovingAverage\"\r\n"
+				+ "        },\r\n"
+				+ "        \"movementType\": \"VendorReceipt\",\r\n"
+				+ "        \"movementQuantity\": 50,\r\n"
+				+ "        \"acquisitionCost\": 50000,\r\n"
+				+ "        \"movementDate\": \"2021-08-23T11:08:00\",\r\n"
+				+ "        \"costingStatus\": \"NotCalculated\"\r\n"
+				+ "    }\r\n"
+				+ "]";
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+
+		HttpEntity<String> request = new HttpEntity<String>(testdata, headers);
+
+		String url = "http://localhost:" + port + "/api/inventory/valuation/addtop";
+
+		restTemplate.postForObject(url, request, String.class);
+		
+		Util.SleepInMilis(30);
+		
+		url = "http://localhost:" + this.port + "/api/inventory/materialtransaction/erroronly";
+		String body = this.restTemplate.getForObject(url, String.class);
+		
+		assertThat(body).isEqualTo("[]");
+	}
+	
+	@Test
+	@Order(1)
 	public void testMaterialTransactionUpdate_positive() throws JSONException {
 		
 		String url = "http://localhost:" + this.port + "/api/inventory/materialtransaction/erroronly";
@@ -73,6 +114,7 @@ class IntegrationTest {
 	}
 	
 	@Test
+	@Order(2)
 	public void testMaterialTransactionRespository_withWhereClause_positive() throws JSONException {
 		String url = "http://localhost:" + this.port + "/api/inventory/materialtransaction/search?sqlWhereClause=costing_status ='NotCalculated'";
 		
@@ -83,6 +125,7 @@ class IntegrationTest {
 	}
 	
 	@Test
+	@Order(3)
 	public void testMaterialTransactionRespository_shouldAbleToQueryErrorRecord() throws JSONException {
 		String url = "http://localhost:" + this.port + "/api/inventory/materialtransaction/erroronly";
 		String body = this.restTemplate.getForObject(url, String.class);
@@ -97,6 +140,7 @@ class IntegrationTest {
 	
 
 	@Test
+	@Order(4)
 	public void testMaterialTransactionRespository_shouldContainAllRecords() throws JSONException {
 		String url = "http://localhost:" + this.port + "/api/inventory/materialtransaction";
 		String body = this.restTemplate.getForObject(url, String.class);
@@ -111,6 +155,7 @@ class IntegrationTest {
 		"1FE6DDD27E014FAC8DD53F5C01892851,Calculated,8000",
 	    "174C8CE7718643A9AA487E16CD29B55A,Error,",
 	    "D8DDDF7EBF274F749E7C5CE5FE393D8F,NotCalculated," })
+	@Order(7)
 	public void testInventoryValuationCorrectness(String correlationId, CostingStatus costingStatus,
 	    Double acquisitionCost) throws Exception {
 
@@ -134,6 +179,7 @@ class IntegrationTest {
 	
 	@ParameterizedTest
 	@CsvSource({"D331AACC8E5F425A9129F530002EA669"})
+	@Order(6)
 	public void testMaterialCostingCorrectness_negative(String productCorrelationId) throws Exception {
 
 		String url = "http://localhost:" + this.port + "/api/inventory/materialcosting/activeonly/" + productCorrelationId;
@@ -152,6 +198,7 @@ class IntegrationTest {
 	@CsvSource({
 		"32D2A76A81584741AF1CFD73F3BAD509,10000,1999",
 		"A69E62DBDDD44FF7B3A42100A6462641,8000,599"})
+	@Order(5)
 	public void testMaterialCostingCorrectness_positive(String productCorrelationId, Double unitCost, Double totalQuantity) throws Exception {
 
 		String url = "http://localhost:" + this.port + "/api/inventory/materialcosting/activeonly/" + productCorrelationId;
