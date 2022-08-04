@@ -12,6 +12,14 @@ public class Util {
 		}
 	}
 	
+	public static void SleepInMilis(int milisecond) {
+		try {
+			Thread.sleep(milisecond);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 	public static boolean isZero(BigDecimal number) {
 		return number.compareTo(BigDecimal.ZERO) == 0;
 	}
