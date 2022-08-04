@@ -19,7 +19,7 @@ public class ValuationController {
 	private CostingStrategyFactory calculatorFactory;
 	
 	@PostMapping(consumes="application/json")
-	public ResponseEntity<String> submitInventoryTransaction(@RequestBody MaterialTransaction[] pendingTransactions) {
+	public ResponseEntity<String> appendInventoryTransaction(@RequestBody MaterialTransaction[] pendingTransactions) {
 		
 		for (MaterialTransaction record : pendingTransactions) {
 			CostingStrategy calculator = calculatorFactory.get(record.getProduct());
@@ -27,6 +27,17 @@ public class ValuationController {
 		}
 		
 		return ResponseEntity.ok("inventory transaction received, lenght: "+pendingTransactions.length);
+	}
+	
+	@PostMapping(value = "/addtop", consumes="application/json")
+	public ResponseEntity<String> pushInventoryTransaction(@RequestBody MaterialTransaction[] pendingTransactions) {
+		for (MaterialTransaction record : pendingTransactions) {
+			CostingStrategy calculator = calculatorFactory.get(record.getProduct());
+			calculator.pushTransaction(record);
+		}
+		
+		return ResponseEntity.ok("inventory transaction received, lenght: "+pendingTransactions.length);
+		
 	}
 
 }

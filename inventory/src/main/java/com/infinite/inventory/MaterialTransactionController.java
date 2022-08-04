@@ -1,7 +1,5 @@
 package com.infinite.inventory;
 
-import java.util.Arrays;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
+import com.infinite.inventory.strategy.CostingStrategy;
+import com.infinite.inventory.strategy.CostingStrategyFactory;
 
 @RestController
 @RequestMapping("/materialtransaction")
@@ -21,6 +21,9 @@ public class MaterialTransactionController {
 	
 	@Autowired
 	private MaterialTransactionRepository repository;
+	
+	@Autowired
+	private CostingStrategyFactory costingStrategyFactory;
 
 	@GetMapping()
 	public MaterialTransaction[] getMaterialTransactions(@RequestParam(required=false) String[] materialTransactionCorellationIds) {
@@ -33,7 +36,13 @@ public class MaterialTransactionController {
 	@PutMapping()
 	public ResponseEntity<?>  update(@RequestBody MaterialTransaction[] materialTransactions) {
 		
-		Arrays.stream(materialTransactions).forEach(record -> repository.update(record));
+		for (MaterialTransaction record : materialTransactions) {
+			
+			CostingStrategy costing = costingStrategyFactory.get(record.getProduct());
+			costing.updateTransaction(record);
+			
+		}
+		
 		return ResponseEntity.ok(materialTransactions);
 	}
 	

@@ -67,8 +67,8 @@ public class MovingAverageStrategy implements CostingStrategy {
 	public void appendTransaction(MaterialTransaction record) {
 		lock.lock();
 		try {
-			pendingTransactions.addLast(record);
 			materialTransactionRepository.save(record);
+			pendingTransactions.addLast(record);
 		}
 		finally {
 			lock.unlock();
@@ -77,16 +77,18 @@ public class MovingAverageStrategy implements CostingStrategy {
 		start();
 	}
 	
-	private void pushTransaction(MaterialTransaction record) {
+	@Override
+	public void pushTransaction(MaterialTransaction record) {
 		lock.lock();
 		try {
-			pendingTransactions.addFirst(record);
 			materialTransactionRepository.save(record);
+			pendingTransactions.addFirst(record);
 		}
 		finally {
 			lock.unlock();
 		}
 		
+		start();
 	}
 
 	@Override
@@ -96,16 +98,11 @@ public class MovingAverageStrategy implements CostingStrategy {
 				break;
 			
 			MaterialTransaction pendingTransaction = getPendingTransaction();
-			logger.info("processing transaction correlation id: "+pendingTransaction.getCorrelationId());
-			
-			if (pendingTransaction.getCostingStatus()==Error) {
-				pushTransaction(pendingTransaction);
-				break;
-			}
-				
 			
 			try {
+				logger.info("processing transaction correlation id: "+pendingTransaction.getCorrelationId());
 				handlePendingTransaction(pendingTransaction);
+				
 			} catch (Exception e) {
 				logger.error(
 						String.format("Transaction with correlation id %s with product correlation id %s throw error message: %s", 
@@ -116,6 +113,8 @@ public class MovingAverageStrategy implements CostingStrategy {
 				
 				materialTransactionRepository.save(pendingTransaction);
 				pushTransaction(pendingTransaction);
+				
+				break;
 			}
 		}
 		
@@ -169,6 +168,8 @@ public class MovingAverageStrategy implements CostingStrategy {
 		}
 		
 		pendingTransaction.setCostingStatus(Calculated);
+		pendingTransaction.setCostingErrorMessage(null);
+		pendingTransaction.setError(false);
 		materialTransactionRepository.save(pendingTransaction);
 		
 		costing.setTotalQty(costing.getTotalQty().add(pendingTransaction.getMovementQuantity()));
@@ -258,6 +259,12 @@ public class MovingAverageStrategy implements CostingStrategy {
 			lock.unlock();
 		}
 		
+	}
+
+	@Override
+	public void updateTransaction(MaterialTransaction record) {
+		materialTransactionRepository.save(record);
+		start();
 	}
 
 }

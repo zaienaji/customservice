@@ -7,4 +7,8 @@ public interface CostingStrategy extends Runnable {
 	
 	void appendTransaction(MaterialTransaction record);
 	
+	void pushTransaction(MaterialTransaction record);
+
+	void updateTransaction(MaterialTransaction record);
+	
 }

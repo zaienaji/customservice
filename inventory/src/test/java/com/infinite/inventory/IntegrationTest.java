@@ -29,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.infinite.inventory.sharedkernel.CostingStatus;
+import com.infinite.inventory.util.Util;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class IntegrationTest {
@@ -180,6 +181,8 @@ class IntegrationTest {
 		String url = "http://localhost:" + port + "/api/inventory/valuation";
 
 		restTemplate.postForObject(url, request, String.class);
+		
+		Util.SleepInMilis(30);
 	}
 
 	private static void deleteExistingRecords(JdbcTemplate jdbcTemplate) {

@@ -142,13 +142,4 @@ public class MaterialTransactionRepository {
 		return result.toArray(new MaterialTransaction[result.size()]);
 	}
 
-	public void update(MaterialTransaction record) throws DataAccessException {
-		updateDb(record);
-		
-		if (StringUtils.isNotBlank(record.getMovementOutCorrelationId()))
-			cacheByMovementOutId.put(record.getMovementOutCorrelationId(), record);
-		
-		return;
-	}
-
 }
