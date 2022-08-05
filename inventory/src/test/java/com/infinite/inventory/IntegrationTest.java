@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -214,7 +215,7 @@ class IntegrationTest {
 	}
 
 	@BeforeAll
-	public static void testPostMaterialTransaction(@Autowired TestRestTemplate restTemplate, @LocalServerPort int port, @Autowired JdbcTemplate jdbcTemplate) throws IOException {
+	public static void setupTestData(@Autowired TestRestTemplate restTemplate, @LocalServerPort int port, @Autowired JdbcTemplate jdbcTemplate) throws IOException {
 		
 		deleteExistingRecords(jdbcTemplate);
 		
@@ -241,6 +242,11 @@ class IntegrationTest {
 		File resource = new ClassPathResource("testdata.json").getFile();
 		String testdata = new String(Files.readAllBytes(resource.toPath()));
 		return testdata;
+	}
+	
+	@AfterAll
+	public static void tearDown(@Autowired JdbcTemplate jdbcTemplate) {
+		deleteExistingRecords(jdbcTemplate);
 	}
 
 }
