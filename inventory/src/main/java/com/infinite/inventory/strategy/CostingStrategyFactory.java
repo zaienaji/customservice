@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.infinite.inventory.CostingRepository;
 import com.infinite.inventory.MaterialTransactionRepository;
+import com.infinite.inventory.ThreadPool;
 import com.infinite.inventory.sharedkernel.Costing;
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
 import com.infinite.inventory.sharedkernel.Product;
@@ -33,6 +34,9 @@ public class CostingStrategyFactory {
 	
 	@Autowired
 	private CostingRepository costingRepository;
+	
+	@Autowired
+	private ThreadPool threadPool;
 
 	public CostingStrategy get(Product product) {
 		if (cache.containsKey(product))
@@ -43,7 +47,11 @@ public class CostingStrategyFactory {
 		List<MaterialTransaction> existingTransactions = materialTransactionRepository.getExistingTransactions(product);
 		existingTransactions.stream().forEach(transaction -> result.appendTransaction(transaction));
 		
-		result.start();
+		try {
+			result.start();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 		
 		cache.put(product, result);
 		
@@ -76,7 +84,7 @@ public class CostingStrategyFactory {
 
 		case MovingAverage:
 			Optional<Costing> costing = existingCostingProvider.get(product);
-			return new MovingAverageStrategy(materialTransactionRepository, costingRepository, costing, product);
+			return new MovingAverageStrategy(threadPool, materialTransactionRepository, costingRepository, costing, product);
 
 		case FIFO:
 		case Standard:

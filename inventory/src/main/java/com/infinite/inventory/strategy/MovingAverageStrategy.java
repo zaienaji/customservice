@@ -10,7 +10,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.management.OperationsException;
@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.infinite.inventory.CostingRepository;
 import com.infinite.inventory.MaterialTransactionRepository;
+import com.infinite.inventory.ThreadPool;
 import com.infinite.inventory.sharedkernel.Costing;
 import com.infinite.inventory.sharedkernel.MaterialTransaction;
 import com.infinite.inventory.sharedkernel.Product;
@@ -40,28 +41,32 @@ public class MovingAverageStrategy implements CostingStrategy {
 	private final MaterialTransactionRepository materialTransactionRepository;
 	private final CostingRepository costingRepository;
 	
-	private AtomicBoolean isWorkerAlive = new AtomicBoolean(false);
+	private final Semaphore semaphore = new Semaphore(1);
 	
-	private Thread worker;
+	private final ThreadPool threadPool;
 	
-	public MovingAverageStrategy(MaterialTransactionRepository materialTransactionRepository,
+	public MovingAverageStrategy(ThreadPool threadPool, MaterialTransactionRepository materialTransactionRepository,
 			CostingRepository costingRepository, Optional<Costing> existingCosting, Product product) {
 		super();
+		
+		this.threadPool = threadPool;
 		this.materialTransactionRepository = materialTransactionRepository;
 		this.costingRepository = costingRepository;
 		this.costing = existingCosting.isPresent()? existingCosting.get() : new Costing(product);
 	}
 
 	public void start() {
-		if (isWorkerAlive.get())
+		
+		if (semaphore.availablePermits()==0)
 			return;
 		
-		isWorkerAlive.set(true);
+		try {
+			semaphore.acquire();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 		
-		if (this.worker==null || !this.worker.isAlive()) {
-			this.worker = new Thread(this);
-			this.worker.start();
-		}			
+		threadPool.execute(this);
 	}
 
 	public void appendTransaction(MaterialTransaction record) {
@@ -69,12 +74,16 @@ public class MovingAverageStrategy implements CostingStrategy {
 		try {
 			materialTransactionRepository.save(record);
 			pendingTransactions.addLast(record);
+			start();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 		finally {
 			lock.unlock();
 		}
 		
-		start();
+		
 	}
 	
 	@Override
@@ -83,12 +92,16 @@ public class MovingAverageStrategy implements CostingStrategy {
 		try {
 			materialTransactionRepository.save(record);
 			pendingTransactions.addFirst(record);
+			start();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 		finally {
 			lock.unlock();
 		}
 		
-		start();
+		
 	}
 
 	@Override
@@ -118,7 +131,7 @@ public class MovingAverageStrategy implements CostingStrategy {
 			}
 		}
 		
-		isWorkerAlive.set(false);
+		semaphore.release();
 	}
 
 	private void handlePendingTransaction(MaterialTransaction pendingTransaction) throws OperationsException {
@@ -272,7 +285,12 @@ public class MovingAverageStrategy implements CostingStrategy {
 	@Override
 	public void updateTransaction(MaterialTransaction record) {
 		materialTransactionRepository.save(record);
-		start();
+		
+		try {
+			start();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }
