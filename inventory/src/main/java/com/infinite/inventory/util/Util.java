@@ -24,8 +24,12 @@ public class Util {
 		return number.compareTo(BigDecimal.ZERO) == 0;
 	}
 
-	public static boolean isNegative(BigDecimal number) {
+	public static boolean isZeroOrNegative(BigDecimal number) {
 		return number.compareTo(BigDecimal.ZERO)<=0;
+	}
+	
+	public static boolean isNegative(BigDecimal number) {
+		return number.compareTo(BigDecimal.ZERO)<0;
 	}
 	
 	public static boolean isNonZero(BigDecimal number) {

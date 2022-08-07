@@ -2,8 +2,8 @@ package com.infinite.inventory.strategy;
 
 import static com.infinite.inventory.sharedkernel.CostingStatus.Calculated;
 import static com.infinite.inventory.sharedkernel.CostingStatus.Error;
-import static com.infinite.inventory.util.Util.isNegative;
 import static com.infinite.inventory.util.Util.isNullOrZero;
+import static com.infinite.inventory.util.Util.isZeroOrNegative;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -123,7 +123,7 @@ public class MovingAverageStrategy implements CostingStrategy {
 
 	private void handlePendingTransaction(MaterialTransaction pendingTransaction) throws OperationsException {
 		
-		if (isNegative(pendingTransaction.getMovementQuantity()))
+		if (isZeroOrNegative(pendingTransaction.getMovementQuantity()))
 			throw new OperationsException("negative movement quantity is not allowed");
 		
 		switch (pendingTransaction.getMovementType()) {
@@ -138,6 +138,7 @@ public class MovingAverageStrategy implements CostingStrategy {
 		case VendorReturn:
 		case MovementOut:
 		case CustomerShipment:
+			makeSureSufficientQuantity(pendingTransaction);
 			handleCustomerShipment(pendingTransaction);
 			break;
 
@@ -153,6 +154,13 @@ public class MovingAverageStrategy implements CostingStrategy {
 		default:
 			throw new IllegalArgumentException("Unexpected value: " + pendingTransaction.getMovementType());
 		}
+		
+	}
+
+	private void makeSureSufficientQuantity(MaterialTransaction pendingTransaction) throws OperationsException {
+		BigDecimal quantityOnHand = costing.getTotalQty().subtract(pendingTransaction.getMovementQuantity());
+		if(Util.isNegative(quantityOnHand))
+			throw new OperationsException("not sufficient quantity");
 		
 	}
 
