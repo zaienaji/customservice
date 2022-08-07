@@ -78,15 +78,22 @@ Inventory valuation use asynchronous approach to process submitted material tran
 
 Once material transaction(s) submitted, inventory valuation will immediately do the calculation, and store it's result to DB for further query. To query calculated inventory valuation you can use `/materialtransaction` end point. Please revisite swagger ui for complete API documentation. 
 
-### Querying problematic material transaction
+### Validation rules for submitted material transaction
 
-Some scenario make it impossible to calculate inventory valuation, including below:
+Some scenario make it impossible to calculate inventory valuation. Hence inventory valuation perform some validation rule to prevent further error. Those validation rule are:
 
 1. negative quantity on hand.
 1. negative movement quantity.
 1. movement in that can not find matched movement out transaction.
 1. physical inventory in that has no cost available nor current cost available.
 1. physical inventory out that has no current cost available.
+1. movement quantity is zero or negative. only positive quantity allowed. inventory valuation use movement type to identify incoming/outgoing quantity, not using negative/positive.
+1. inadequate quantity for outgoing transaction. for example, if quantity on hand is 10, but customer shipment need 10, it will set costing status as `Error` with error message `Insufficient quantity`.
+1. acquisition cost is zero for: 
+    1. vendory receipt transaction.
+    1. 1<sup>st</sup> transaction with movement type physical inventory in.
+
+### Querying problematic material transaction
 
 If inventory valuation detect a problematic material transaction, inventory valuation will flag this record as an error, field `costingStatus` set to `Error`, `costingErrorMessage` will contain what cause of this error, and `error` set to true. This error record will prevent inventory valuation to calculate next material transaction, since a material transaction calculation depend on successfull previous transaction.
 
