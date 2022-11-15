@@ -150,3 +150,14 @@ We can add a new transaction to the top of the chain using `/valuation/addtop` e
 ```
 
 Those new transaction will add a vendor receipt, which increase quantity on hand and also provide a current cost, hence the problematic transaction will not problematic anymore since current cost now available.
+
+## Example use case: integration with Openbravo
+![integration with Openbravo](./doc/inventory-valuation-openbravo-integration.png)
+
+1. On Openbravo, Execute a business process workflow, until a material transaction document (e.g. Goods Receipt) **Completed**, meaning document status is `Completed`, and stock on hand changed.
+1. On Openbravo, using a background process, send completed material transaction document to Inventory Valuation Service, using `/valuation` endpoint. This is asynchronous process, hence using send-and-forget approach.
+1. Inventory Valuation Serivice use some worker thread to calculate submitted material transaction. The process use firt in first serve approach.
+1. From openbravo, call Inventory Valuation Service API: `/materialtransaction` endpoint, to retrieve calculation result. if not calculated, there are 2 possibilities:
+    1. worker thread still processing previous record, and not arrive yet to this material transaction record that you try to retrieve.
+    1. previous record has an error, then Inventory Valuation Service prevent to proceed futher record. Use `erroronly` endpoint to retrieve problematic material transactions.
+1. On Openbravo, using a background process, we can update current costing status and transaction cost, based on result after call `/materialtransaction` Inventory Valuation Service API.
