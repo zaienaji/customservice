@@ -32,6 +32,10 @@ Run packed jar
 
 `java -jar inventory-0.0.1-SNAPSHOT.jar`
 
+IF port 800 on your environment already used, you can run CustomService on specific port, for example port 8081:
+
+`java -jar inventory-0.0.1-SNAPSHOT.jar --server.port=8081`
+
 you will see log similar to this when service up successfully:
 
 ```
