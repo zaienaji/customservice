@@ -283,7 +283,11 @@ public class MovingAverageStrategy implements CostingStrategy {
 	}
 
 	@Override
-	public void updateTransaction(MaterialTransaction record) {
+	public Optional<String> updateTransaction(MaterialTransaction record) {
+		
+		if (record.getCostingStatus()==Calculated)
+			return Optional.of("can not update material transaction with status complete for correlation id "+record.getCorrelationId());
+		
 		materialTransactionRepository.save(record);
 		
 		try {
@@ -291,6 +295,8 @@ public class MovingAverageStrategy implements CostingStrategy {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+		
+		return Optional.empty();
 	}
 
 }

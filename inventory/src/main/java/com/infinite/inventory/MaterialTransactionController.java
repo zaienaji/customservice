@@ -1,8 +1,11 @@
 package com.infinite.inventory;
 
+import java.util.Optional;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -36,12 +39,19 @@ public class MaterialTransactionController {
 	@PutMapping()
 	public ResponseEntity<?>  update(@RequestBody MaterialTransaction[] materialTransactions) {
 		
+		StringBuilder errorMessages = new StringBuilder();
+		
 		for (MaterialTransaction record : materialTransactions) {
 			
 			CostingStrategy costing = costingStrategyFactory.get(record.getProduct());
-			costing.updateTransaction(record);
+			Optional<String> errorMessage = costing.updateTransaction(record);
 			
+			if (errorMessage.isPresent())
+				errorMessages.append(errorMessage.get()).append(System.lineSeparator());
 		}
+		
+		if (!errorMessages.isEmpty())
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessages.toString());
 		
 		return ResponseEntity.ok(materialTransactions);
 	}
