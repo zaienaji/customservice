@@ -36,7 +36,7 @@ public class MovingAverageStrategy implements CostingStrategy {
 	private final static LocalDateTime doomsDay = LocalDateTime.of(9999, 12, 31, 0, 0);
 	
 	private ReentrantLock lock = new ReentrantLock(); 
-	private final LinkedList<MaterialTransaction> pendingTransactions = new LinkedList<>();
+	private final LinkedList<MaterialTransaction> pendingTransactions = new LinkedList<>(); //TODO fix reconstruct of pendingTransactions when addTop operation happened in the past.
 	
 	private final MaterialTransactionRepository materialTransactionRepository;
 	private final CostingRepository costingRepository;
@@ -289,6 +289,13 @@ public class MovingAverageStrategy implements CostingStrategy {
 			return Optional.of("can not update material transaction with status complete for correlation id "+record.getCorrelationId());
 		
 		materialTransactionRepository.save(record);
+		
+		Optional<Integer> index = Util.findNode(pendingTransactions, record);
+		
+		if (index.isEmpty())
+			return Optional.of("can not find active material transaction with correlation id "+record.getCorrelationId());
+		
+		pendingTransactions.set(index.get(), record);
 		
 		try {
 			start();
