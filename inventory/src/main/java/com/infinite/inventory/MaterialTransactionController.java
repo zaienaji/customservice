@@ -1,6 +1,11 @@
 package com.infinite.inventory;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,21 +44,55 @@ public class MaterialTransactionController {
 	@PutMapping()
 	public ResponseEntity<?>  update(@RequestBody MaterialTransaction[] materialTransactions) {
 		
-		StringBuilder errorMessages = new StringBuilder();
+		Optional<String> errorMessage = assignId(materialTransactions);
+		if (errorMessage.isPresent())
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage.toString());
 		
+		StringBuilder errorMessages = new StringBuilder();
 		for (MaterialTransaction record : materialTransactions) {
 			
 			CostingStrategy costing = costingStrategyFactory.get(record.getProduct());
-			Optional<String> errorMessage = costing.updateTransaction(record);
+			Optional<String> updateStatus = costing.updateTransaction(record);
 			
-			if (errorMessage.isPresent())
-				errorMessages.append(errorMessage.get()).append(System.lineSeparator());
+			if (updateStatus.isPresent())
+				errorMessages.append(updateStatus.get()).append(System.lineSeparator());
 		}
 		
 		if (!errorMessages.isEmpty())
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessages.toString());
 		
 		return ResponseEntity.ok(materialTransactions);
+	}
+
+	private Optional<String> assignId(MaterialTransaction[] materialTransactions) {
+		
+		Map<String, MaterialTransaction> materialTransactionsByCorrelationId = mapMaterialTransactionByCorrelationId(materialTransactions);
+		
+		StringBuilder errorMessages = new StringBuilder();
+		for (MaterialTransaction materialTransaction : materialTransactions) {
+			
+			String correlationId = materialTransaction.getCorrelationId();
+			
+			if (materialTransactionsByCorrelationId.containsKey(correlationId)) {
+				MaterialTransaction materialTransactionFromDb = materialTransactionsByCorrelationId.get(materialTransaction.getCorrelationId());
+				materialTransaction.setId(materialTransactionFromDb.getId());
+			} else {
+				errorMessages.append("cannot find material transaction from db with correlation id "+correlationId).append(System.lineSeparator());
+			}
+		}
+		
+		if (errorMessages.isEmpty())
+			return Optional.empty();
+		
+		return Optional.of(errorMessages.toString());
+	}
+
+	private Map<String, MaterialTransaction> mapMaterialTransactionByCorrelationId(MaterialTransaction[] materialTransactions) {
+		
+		List<String> correlationIds = Arrays.stream(materialTransactions).map(MaterialTransaction::getCorrelationId).collect(Collectors.toList());
+		MaterialTransaction[] materialTransactionFromDb = repository.findByCorellationIds(correlationIds.toArray(new String[0]));
+		
+		return Arrays.stream(materialTransactionFromDb).collect(Collectors.toMap(MaterialTransaction::getCorrelationId, Function.identity()));
 	}
 	
 	@GetMapping("/erroronly")

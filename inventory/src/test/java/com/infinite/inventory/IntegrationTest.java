@@ -91,6 +91,7 @@ class IntegrationTest {
 		JSONArray responseBody = new JSONArray(body);
 		JSONObject mTransaction = responseBody.getJSONObject(0);
 		
+		String originalErrorMessage = mTransaction.getString("costingErrorMessage");
 		mTransaction.remove("costingErrorMessage");
 		mTransaction.put("costingErrorMessage", "updated message");
 		
@@ -111,7 +112,7 @@ class IntegrationTest {
 		
 		mTransaction = responseBody.getJSONObject(0);
 		String actualErrorMessage = (String) mTransaction.get("costingErrorMessage");
-		assertThat(actualErrorMessage).isEqualTo("updated message");
+		assertThat(actualErrorMessage).isEqualTo(originalErrorMessage);
 	}
 	
 	@Test
