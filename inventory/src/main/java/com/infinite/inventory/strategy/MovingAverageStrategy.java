@@ -290,12 +290,11 @@ public class MovingAverageStrategy implements CostingStrategy {
 		
 		materialTransactionRepository.save(record);
 		
-		Optional<Integer> index = Util.findNode(pendingTransactions, record); //TODO use LinkedList.indexOf
-		
-		if (index.isEmpty())
+		int index = pendingTransactions.indexOf(record);
+		if (index == -1)
 			return Optional.of("can not find active material transaction with correlation id "+record.getCorrelationId());
 		
-		pendingTransactions.set(index.get(), record);
+		pendingTransactions.set(index, record);
 		
 		try {
 			start();

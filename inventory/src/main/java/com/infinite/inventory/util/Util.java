@@ -1,12 +1,6 @@
 package com.infinite.inventory.util;
 
 import java.math.BigDecimal;
-import java.util.LinkedList;
-import java.util.Optional;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.infinite.inventory.sharedkernel.MaterialTransaction;
 
 public class Util {
 	
@@ -44,20 +38,6 @@ public class Util {
 	
 	public static boolean isNullOrZero(BigDecimal number) {
 		return !isNonZero(number);
-	}
-	
-	public static Optional<Integer> findNode(LinkedList<MaterialTransaction> cache, MaterialTransaction key){
-		
-		int index = 0;
-		for (MaterialTransaction materialTransaction : cache) {
-			if (StringUtils.equals(materialTransaction.getCorrelationId(), key.getCorrelationId()))
-				return Optional.of(index);
-			
-			index++;
-		}
-		
-		
-		return Optional.empty();
 	}
 
 }
